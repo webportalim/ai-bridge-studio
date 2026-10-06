@@ -1857,6 +1857,7 @@ ${FILE_LIST:0:4000}"
           DECISION_WHY+=("Antigravity done=true bildirdi." "VERIFY_CMD ($VERIFY_CMD) basariyla gecti (rc=0).")
         else
           CURRENT_DECISION="needs_another_turn"
+          CURRENT_VERIF="failed"
           DECISION_WHY+=("Antigravity done bildirdi ancak VERIFY_CMD basarisiz oldu (rc=$VERIFY_RC).")
         fi
       elif [ "$AGY_BLOCKED" = "true" ] || [ "$AGY_HAS_DENIED" = "true" ]; then

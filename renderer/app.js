@@ -286,8 +286,35 @@ function setupEventListeners() {
   });
 
   bridge.onStderr((text) => {
-    if (text && text.trim()) {
-      console.warn('CLI Diagnostic Stderr:', text);
+    if (!text || !text.trim()) return;
+    const lines = text.split(/\r?\n/);
+    for (const raw of lines) {
+      const trimmed = raw.trim();
+      if (!trimmed) continue;
+
+      // Extract time prefix if present: [12:31:07] message
+      const match = trimmed.match(/^\[\d{2}:\d{2}:\d{2}\]\s*(.*)$/);
+      const msg = match ? match[1] : trimmed;
+      if (!msg) continue;
+
+      const lower = msg.toLowerCase();
+      if (msg.startsWith('HATA:') || lower.includes('command not found') || lower.includes('fatal:')) {
+        appendLog('ERROR', msg, 'text-rose-400');
+      } else if (msg.startsWith('UYARI:') || lower.includes('warning:')) {
+        appendLog('WARN', msg, 'text-amber-400');
+      } else if (msg.startsWith('TUR ')) {
+        appendLog('ROUND', msg, 'text-purple-300 font-bold');
+      } else if (msg.startsWith('→') || msg.startsWith('===')) {
+        appendLog('STEP', msg.replace(/^[→=]+\s*/, ''), 'text-cyan-300 font-semibold');
+      } else if (msg.startsWith('●')) {
+        appendLog('TOOL', msg.replace(/^●\s*/, ''), 'text-sky-400 font-mono');
+      } else if (msg.startsWith('Antigravity:') || msg.startsWith('Özet:')) {
+        appendLog('AGY', msg, 'text-emerald-300');
+      } else if (lower.includes('doğrulama') || lower.includes('verification')) {
+        appendLog('TEST', msg, 'text-cyan-400');
+      } else {
+        appendLog('STREAM', msg, 'text-slate-300');
+      }
     }
   });
 }
@@ -1193,9 +1220,11 @@ function clearLog() {
 }
 
 async function openLogInEditor() {
-  const res = await bridge.openLog(state.projectPath);
+  const pInput = document.getElementById('project-input');
+  const projectPath = (pInput ? pInput.value.trim() : '') || state.projectPath;
+  const res = await bridge.openLog(projectPath);
   if (!res) {
-    showToast('info', `Log file has not been created yet: ${state.projectPath}/.git/ai_bridge/bridge_latest.log`);
+    showToast('info', 'Log dosyası bulunamadı veya henüz oluşturulmadı.');
   }
 }
 
@@ -1282,32 +1311,53 @@ async function openA4Modal(runIdOverride) {
     taskTextEl.innerText = t || 'Görev belirtilmedi.';
   }
 
-  // Agent execution results
+  const dur = (report && report.duration) || {};
+
+  // Agent execution results & badges
   const codexResEl = document.getElementById('a4-codex-res');
+  const codexBadgeEl = document.getElementById('a4-codex-badge');
+  const c = report && report.agents && report.agents.codex;
+  const cDur = c && c.duration_sec != null ? c.duration_sec : (dur.codex_sec != null ? dur.codex_sec : (state.agentDurations.codex || 0));
   if (codexResEl) {
-    const c = report && report.agents && report.agents.codex;
     if (c) {
-      codexResEl.innerText = c.enabled ? `Çalıştırıldı (${c.duration_sec || 0}s). ${report.warnings && report.warnings.length ? report.warnings.join(' ') : 'İşlem tamamlandı.'}` : 'Atlandı / Devre dışı';
+      const warns = report.warnings && report.warnings.length ? [...new Set(report.warnings)].join(' ') : 'İşlem tamamlandı.';
+      codexResEl.innerText = c.enabled ? `Çalıştırıldı (${cDur}s). ${warns}` : 'Atlandı / Devre dışı';
     } else {
       codexResEl.innerText = state.agentStatus.codex === 'completed' ? 'Tamamlandı' : 'Atlandı';
     }
   }
+  if (codexBadgeEl) {
+    codexBadgeEl.innerText = (c && c.enabled) ? `rc=0 (${formatDuration(cDur)})` : 'atlandı';
+    codexBadgeEl.className = `font-mono ${(c && c.enabled) ? 'text-emerald-400' : 'text-slate-500'}`;
+  }
 
   const claudeResEl = document.getElementById('a4-claude-res');
+  const claudeBadgeEl = document.getElementById('a4-claude-badge');
+  const cl = report && report.agents && report.agents.claude;
+  const clDur = cl && cl.duration_sec != null ? cl.duration_sec : (dur.claude_sec != null ? dur.claude_sec : 0);
+  const rv = (report && report.review && report.review.verdict) || (cl && cl.verdict) || 'SKIPPED';
   if (claudeResEl) {
-    const cl = report && report.agents && report.agents.claude;
-    const rv = (report && report.review && report.review.verdict) || (cl && cl.verdict) || 'SKIPPED';
     claudeResEl.innerText = cl && cl.enabled ? `VERDICT: ${rv}` : 'Atlandı (Devre dışı)';
+  }
+  if (claudeBadgeEl) {
+    claudeBadgeEl.innerText = (cl && cl.enabled) ? `rc=0 (${formatDuration(clDur)})` : 'atlandı';
+    claudeBadgeEl.className = `font-mono ${(cl && cl.enabled) ? 'text-emerald-400' : 'text-slate-500'}`;
   }
 
   const agyResEl = document.getElementById('a4-agy-res');
+  const agyBadgeEl = document.getElementById('a4-agy-badge');
+  const agy = report && report.agents && report.agents.agy;
+  const agyDur = agy && agy.duration_sec != null ? agy.duration_sec : (dur.agy_sec != null ? dur.agy_sec : (state.agentDurations.agy || 0));
   if (agyResEl) {
     if (report && report.summary) {
       agyResEl.innerText = report.summary;
     } else {
-      const agy = report && report.agents && report.agents.agy;
-      agyResEl.innerText = agy && agy.enabled ? `Çalıştırıldı (${agy.duration_sec || 0}s)` : 'Atlandı';
+      agyResEl.innerText = agy && agy.enabled ? `Çalıştırıldı (${agyDur}s)` : 'Atlandı';
     }
+  }
+  if (agyBadgeEl) {
+    agyBadgeEl.innerText = (agy && agy.enabled) ? `rc=0 (${formatDuration(agyDur)})` : 'atlandı';
+    agyBadgeEl.className = `font-mono ${(agy && agy.enabled) ? 'text-cyan-400' : 'text-slate-500'}`;
   }
 
   // Changed files
@@ -1339,18 +1389,21 @@ async function openA4Modal(runIdOverride) {
   }
 
   // Durations Breakdown
-  const dur = (report && report.duration) || {};
   const durTotal = document.getElementById('a4-dur-total');
-  if (durTotal) durTotal.innerText = formatDuration(dur.total_sec || state.elapsedSeconds || 0);
+  const durTotalVal = dur.total_sec != null ? dur.total_sec : (state.elapsedSeconds || 0);
+  if (durTotal) durTotal.innerText = formatDuration(durTotalVal);
 
   const durCodex = document.getElementById('a4-dur-codex');
-  if (durCodex) durCodex.innerText = formatDuration(dur.codex_sec || state.agentDurations.codex || 0);
+  const durCodexVal = dur.codex_sec != null ? dur.codex_sec : (state.agentDurations.codex || 0);
+  if (durCodex) durCodex.innerText = formatDuration(durCodexVal);
 
   const durClaude = document.getElementById('a4-dur-claude');
-  if (durClaude) durClaude.innerText = formatDuration(dur.claude_sec || state.agentDurations.claude || 0);
+  const durClaudeVal = (cl && cl.enabled === false) ? 0 : (dur.claude_sec != null ? dur.claude_sec : (state.agentDurations.claude || 0));
+  if (durClaude) durClaude.innerText = formatDuration(durClaudeVal);
 
   const durAgy = document.getElementById('a4-dur-agy');
-  if (durAgy) durAgy.innerText = formatDuration(dur.agy_sec || state.agentDurations.agy || 0);
+  const durAgyVal = dur.agy_sec != null ? dur.agy_sec : (state.agentDurations.agy || 0);
+  if (durAgy) durAgy.innerText = formatDuration(durAgyVal);
 
   const durVerify = document.getElementById('a4-dur-verify');
   if (durVerify) durVerify.innerText = `${dur.verification_sec || 0}s`;

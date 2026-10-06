@@ -776,17 +776,58 @@ safeIpcHandle('git:branch-info', async (event, projectPath) => {
 // Open log in external viewer IPC
 safeIpcHandle('bridge:open-log', async (event, projectPath) => {
   const p = projectPath || loadConfig().lastProject;
-  const candidateLog = path.join(p, '.git', 'ai_bridge', 'bridge_latest.log');
-  if (fs.existsSync(candidateLog)) {
-    await shell.openPath(candidateLog);
+  if (!p) return false;
+
+  const bridgeDir = path.join(p, '.git', 'ai_bridge');
+
+  // 1. Direct candidate: bridge_latest.log
+  const candidateLatest = path.join(bridgeDir, 'bridge_latest.log');
+  if (fs.existsSync(candidateLatest)) {
+    await shell.openPath(candidateLatest);
     return true;
   }
-  // Try fallback in cwd
-  const cwdLog = path.join(process.cwd(), 'ai_bridge.log');
-  if (fs.existsSync(cwdLog)) {
-    await shell.openPath(cwdLog);
-    return true;
+
+  // 2. Read from last_run.json
+  const lastRunFile = path.join(bridgeDir, 'last_run.json');
+  if (fs.existsSync(lastRunFile)) {
+    try {
+      const lr = JSON.parse(fs.readFileSync(lastRunFile, 'utf8'));
+      if (lr && lr.run_id) {
+        const runLog = path.join(bridgeDir, `bridge_${lr.run_id}.log`);
+        if (fs.existsSync(runLog)) {
+          await shell.openPath(runLog);
+          return true;
+        }
+      }
+    } catch (_) {}
   }
+
+  // 3. Find the newest bridge_*.log in .git/ai_bridge
+  if (fs.existsSync(bridgeDir)) {
+    try {
+      const files = fs.readdirSync(bridgeDir)
+        .filter(f => f.startsWith('bridge_') && f.endsWith('.log'))
+        .map(f => ({ name: f, fullPath: path.join(bridgeDir, f), mtime: fs.statSync(path.join(bridgeDir, f)).mtimeMs }))
+        .sort((a, b) => b.mtime - a.mtime);
+      if (files.length > 0) {
+        await shell.openPath(files[0].fullPath);
+        return true;
+      }
+    } catch (_) {}
+  }
+
+  // 4. Fallback in project root or cwd
+  const cwdCandidates = [
+    path.join(p, 'ai_bridge.log'),
+    path.join(process.cwd(), 'ai_bridge.log')
+  ];
+  for (const c of cwdCandidates) {
+    if (fs.existsSync(c)) {
+      await shell.openPath(c);
+      return true;
+    }
+  }
+
   return false;
 });
 
