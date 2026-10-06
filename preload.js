@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld('aiBridge', {
   // Core backend operations
   selectProject: () => ipcRenderer.invoke('dialog:select-project'),
   selectFile: (defaultDir) => ipcRenderer.invoke('dialog:select-file', defaultDir),
+  selectFolder: (defaultDir) => ipcRenderer.invoke('dialog:select-folder', defaultDir),
+  inspectPaths: (paths) => ipcRenderer.invoke('dialog:inspect-paths', paths),
   getModelCatalog: () => ipcRenderer.invoke('models:catalog'),
   saveTextFile: (defaultName, content) => ipcRenderer.invoke('dialog:save-text', defaultName, content),
   run: (options) => ipcRenderer.invoke('bridge:run', options),

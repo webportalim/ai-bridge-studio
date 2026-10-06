@@ -63,6 +63,8 @@ const state = {
 const bridge = window.aiBridge || {
   selectProject: async () => null,
   selectFile: async () => [],
+  selectFolder: async () => [],
+  inspectPaths: async (paths) => (paths || []).map(p => ({ filePath: p, name: p, relativePath: null, isDirectory: false })),
   run: async () => ({ started: true, pid: 1234 }),
   stop: async () => true,
   accept: async () => ({ success: true }),
@@ -2061,7 +2063,7 @@ function updateCharCount() {
 
 async function selectTaskFiles() {
   try {
-    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || '';
+    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || state.projectPath || '';
     const selected = await bridge.selectFile(projectDir);
     if (!selected || !selected.length) return;
 
@@ -2074,7 +2076,10 @@ async function selectTaskFiles() {
 
     for (const file of selected) {
       if (!existingPaths.has(file.filePath)) {
-        state.attachedFiles.push(file);
+        state.attachedFiles.push({
+          ...file,
+          isDirectory: false
+        });
         existingPaths.add(file.filePath);
         addedCount++;
       }
@@ -2090,6 +2095,40 @@ async function selectTaskFiles() {
   }
 }
 
+async function selectTaskFolder() {
+  try {
+    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || state.projectPath || '';
+    const selected = await bridge.selectFolder(projectDir);
+    if (!selected || !selected.length) return;
+
+    if (!Array.isArray(state.attachedFiles)) {
+      state.attachedFiles = [];
+    }
+
+    const existingPaths = new Set(state.attachedFiles.map(f => f.filePath));
+    let addedCount = 0;
+
+    for (const folder of selected) {
+      if (!existingPaths.has(folder.filePath)) {
+        state.attachedFiles.push({
+          ...folder,
+          isDirectory: true
+        });
+        existingPaths.add(folder.filePath);
+        addedCount++;
+      }
+    }
+
+    renderAttachedFiles();
+    if (addedCount > 0) {
+      showToast('info', `${addedCount} folder(s) attached.`);
+    }
+  } catch (err) {
+    console.error('Folder selection error:', err);
+    showToast('error', 'Failed to select folder: ' + (err.message || err));
+  }
+}
+
 function removeAttachedFile(idx) {
   if (Array.isArray(state.attachedFiles) && idx >= 0 && idx < state.attachedFiles.length) {
     state.attachedFiles.splice(idx, 1);
@@ -2100,7 +2139,7 @@ function removeAttachedFile(idx) {
 function clearAllAttachedFiles() {
   state.attachedFiles = [];
   renderAttachedFiles();
-  showToast('info', 'Attached files cleared.');
+  showToast('info', 'Attached files and folders cleared.');
 }
 
 function renderAttachedFiles() {
@@ -2122,18 +2161,30 @@ function renderAttachedFiles() {
   container.classList.remove('hidden');
 
   listEl.innerHTML = files.map((file, idx) => {
+    const isDir = !!file.isDirectory;
     const sizeStr = file.size > 0
       ? (file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(file.size / 1024)} KB`)
       : '';
+    const metaStr = isDir
+      ? (file.fileCount ? `${file.fileCount} files` : 'folder')
+      : sizeStr;
     const displayName = file.relativePath || file.name || file.filePath;
-    const isRepoFile = !!file.relativePath;
+    const isRepoItem = !!file.relativePath;
+
+    const chipClass = isDir
+      ? 'border-emerald-500/35 hover:border-emerald-400/60 bg-[#06181d]'
+      : 'border-cyan-500/25 hover:border-cyan-400/50 bg-[#0b162c]';
+
+    const iconHtml = isDir
+      ? '<span class="text-emerald-400 text-[11px]">📁</span>'
+      : `<span class="${isRepoItem ? 'text-cyan-400' : 'text-amber-400'} text-[11px]">${isRepoItem ? '📄' : '📎'}</span>`;
 
     return `
-      <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#0b162c] border border-cyan-500/25 text-slate-200 text-xs font-mono shadow-sm group hover:border-cyan-400/50 transition-colors" title="${escapeHtml(file.filePath)}">
-        <span class="${isRepoFile ? 'text-cyan-400' : 'text-amber-400'} text-[11px]">${isRepoFile ? '📄' : '📎'}</span>
-        <span class="max-w-[220px] truncate select-all" title="${escapeHtml(file.filePath)}">${escapeHtml(displayName)}</span>
-        ${sizeStr ? `<span class="text-[10px] text-slate-400 font-sans">(${sizeStr})</span>` : ''}
-        <button type="button" onclick="removeAttachedFile(${idx})" class="w-4 h-4 ml-0.5 rounded flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer" title="Remove file">
+      <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded border ${chipClass} text-slate-200 text-xs font-mono shadow-sm group transition-colors" title="${escapeHtml(file.filePath)}">
+        ${iconHtml}
+        <span class="max-w-[220px] truncate select-all" title="${escapeHtml(file.filePath)}">${escapeHtml(displayName)}${isDir ? '/' : ''}</span>
+        ${metaStr ? `<span class="text-[10px] ${isDir ? 'text-emerald-300/80' : 'text-slate-400'} font-sans">(${metaStr})</span>` : ''}
+        <button type="button" onclick="removeAttachedFile(${idx})" class="w-4 h-4 ml-0.5 rounded flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer" title="Remove ${isDir ? 'folder' : 'file'}">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -2160,35 +2211,48 @@ function setupTaskDragAndDrop() {
   textarea.addEventListener('dragenter', highlight);
   textarea.addEventListener('dragleave', unhighlight);
 
-  textarea.addEventListener('drop', (e) => {
+  textarea.addEventListener('drop', async (e) => {
     unhighlight(e);
     if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    const files = Array.from(e.dataTransfer.files);
-    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || '';
+    const dropped = Array.from(e.dataTransfer.files);
+    const paths = dropped.map(f => f.path || f.name).filter(Boolean);
+    if (!paths.length) return;
 
     if (!Array.isArray(state.attachedFiles)) {
       state.attachedFiles = [];
     }
 
+    let inspected = [];
+    try {
+      if (bridge.inspectPaths) {
+        inspected = await bridge.inspectPaths(paths);
+      }
+    } catch (_) {}
+
+    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || state.projectPath || '';
     let addedCount = 0;
     const existingPaths = new Set(state.attachedFiles.map(f => f.filePath));
 
-    for (const f of files) {
+    for (let i = 0; i < dropped.length; i++) {
+      const f = dropped[i];
       const fullPath = f.path || f.name;
       if (!existingPaths.has(fullPath)) {
-        let relativePath = null;
-        if (projectDir && fullPath.toLowerCase().startsWith(projectDir.toLowerCase())) {
+        const itemInfo = (inspected && inspected[i]) || {};
+        let relativePath = itemInfo.relativePath || null;
+        if (!relativePath && projectDir && fullPath.toLowerCase().startsWith(projectDir.toLowerCase())) {
           relativePath = fullPath.slice(projectDir.length).replace(/^[\\\/]+/, '').replace(/\\/g, '/');
         }
         state.attachedFiles.push({
           filePath: fullPath,
-          name: f.name,
+          name: itemInfo.name || f.name,
           relativePath: relativePath,
-          size: f.size || 0
+          isDirectory: !!itemInfo.isDirectory,
+          size: itemInfo.size || f.size || 0,
+          fileCount: itemInfo.fileCount || 0
         });
         existingPaths.add(fullPath);
         addedCount++;
@@ -2197,12 +2261,13 @@ function setupTaskDragAndDrop() {
 
     if (addedCount > 0) {
       renderAttachedFiles();
-      showToast('info', `${addedCount} file(s) attached to task.`);
+      showToast('info', `${addedCount} item(s) attached to task.`);
     }
   });
 }
 
 window.selectTaskFiles = selectTaskFiles;
+window.selectTaskFolder = selectTaskFolder;
 window.removeAttachedFile = removeAttachedFile;
 window.clearAllAttachedFiles = clearAllAttachedFiles;
 

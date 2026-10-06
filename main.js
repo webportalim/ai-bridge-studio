@@ -714,6 +714,93 @@ safeIpcHandle('dialog:select-file', async (event, defaultDir) => {
   });
 });
 
+function scanFolderForTask(folderPath, maxFiles = 40) {
+  const ignored = new Set(['.git', 'node_modules', 'dist', 'build', '.next', '__pycache__', '.venv', 'venv', '.serena', '.gemini', '.idea', '.vscode']);
+  const results = [];
+
+  function walk(currentDir) {
+    if (results.length >= maxFiles) return;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    } catch (_) {
+      return;
+    }
+    for (const ent of entries) {
+      if (results.length >= maxFiles) break;
+      if (ignored.has(ent.name)) continue;
+      const fullPath = path.join(currentDir, ent.name);
+      if (ent.isDirectory()) {
+        walk(fullPath);
+      } else if (ent.isFile()) {
+        let size = 0;
+        try { size = fs.statSync(fullPath).size; } catch (_) {}
+        const rel = path.relative(folderPath, fullPath).replace(/\\/g, '/');
+        results.push({ fullPath, rel, size, name: ent.name });
+      }
+    }
+  }
+
+  walk(folderPath);
+  return results;
+}
+
+safeIpcHandle('dialog:select-folder', async (event, defaultDir) => {
+  if (!mainWindow) return [];
+  const startDir = (defaultDir && fs.existsSync(defaultDir)) ? defaultDir : (loadConfig().lastProject || getAutoProjectDir());
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Folder for Task',
+    defaultPath: fs.existsSync(startDir) ? startDir : undefined,
+    properties: ['openDirectory', 'multiSelections']
+  });
+  if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+    return [];
+  }
+  const projectRoot = (loadConfig().lastProject || getAutoProjectDir());
+  return result.filePaths.map(folderPath => {
+    const rel = path.relative(projectRoot, folderPath);
+    const isInside = !rel.startsWith('..') && !path.isAbsolute(rel);
+    const files = scanFolderForTask(folderPath, 50);
+    return {
+      filePath: folderPath,
+      name: path.basename(folderPath),
+      relativePath: isInside ? rel.replace(/\\/g, '/') : null,
+      isDirectory: true,
+      fileCount: files.length
+    };
+  });
+});
+
+safeIpcHandle('dialog:inspect-paths', async (event, paths) => {
+  if (!Array.isArray(paths)) return [];
+  const projectRoot = (loadConfig().lastProject || getAutoProjectDir());
+  return paths.map(p => {
+    let isDirectory = false;
+    let size = 0;
+    let fileCount = 0;
+    try {
+      if (fs.existsSync(p)) {
+        const stat = fs.statSync(p);
+        isDirectory = stat.isDirectory();
+        size = stat.size;
+        if (isDirectory) {
+          fileCount = scanFolderForTask(p, 50).length;
+        }
+      }
+    } catch (_) {}
+    const rel = path.relative(projectRoot, p);
+    const isInside = !rel.startsWith('..') && !path.isAbsolute(rel);
+    return {
+      filePath: p,
+      name: path.basename(p),
+      relativePath: isInside ? rel.replace(/\\/g, '/') : null,
+      isDirectory,
+      size,
+      fileCount
+    };
+  });
+});
+
 safeIpcHandle('dialog:save-text', async (event, defaultName, content) => {
   if (!mainWindow) return { success: false, error: 'No window' };
   const result = await dialog.showSaveDialog(mainWindow, {
@@ -1039,27 +1126,62 @@ safeIpcHandle('bridge:run', async (event, options) => {
 
   let finalTask = task;
   if (Array.isArray(attachedFiles) && attachedFiles.length > 0) {
-    let filesContext = '\n\n[USER ATTACHED TARGET / REFERENCE FILES]:\n';
+    let filesContext = '\n\n[USER ATTACHED TARGET / REFERENCE FILES & DIRECTORIES]:\n';
+    let totalInjectedBytes = 0;
+    const maxTotalInjectedBytes = 120 * 1024; // 120KB total content limit
+
     for (const f of attachedFiles) {
-      const p = f.filePath || f.path;
-      if (!p) continue;
-      const targetRef = f.relativePath ? `${f.relativePath} (in project)` : `${p} (external file)`;
-      filesContext += `\n● File: ${targetRef}\n`;
-      try {
-        if (fs.existsSync(p)) {
-          const stat = fs.statSync(p);
-          if (stat.size <= 80 * 1024) {
+      const p = f.filePath || f.path || f.folderPath;
+      if (!p || !fs.existsSync(p)) continue;
+      let stat = null;
+      try { stat = fs.statSync(p); } catch (_) {}
+      if (!stat) continue;
+
+      const isDir = !!(f.isDirectory || stat.isDirectory());
+      const targetRef = f.relativePath ? `${f.relativePath} (in project)` : `${p} (external)`;
+
+      if (isDir) {
+        const folderFiles = scanFolderForTask(p, 40);
+        filesContext += `\n📁 DIRECTORY: ${targetRef} (${folderFiles.length} file(s) found)\n`;
+        filesContext += `Contained files:\n`;
+        for (const ff of folderFiles) {
+          const szStr = ff.size > 1024 ? `${Math.round(ff.size / 1024)} KB` : `${ff.size} B`;
+          filesContext += `  - ${ff.rel} (${szStr})\n`;
+        }
+
+        // Inject content of readable text files in directory
+        for (const ff of folderFiles) {
+          if (totalInjectedBytes >= maxTotalInjectedBytes) {
+            filesContext += `(Additional folder files omitted from prompt to stay within limits. Read directly from disk as needed.)\n`;
+            break;
+          }
+          if (ff.size <= 25 * 1024) {
+            try {
+              const content = fs.readFileSync(ff.fullPath, 'utf8');
+              if (!content.includes('\0')) {
+                filesContext += `\n--- FILE: ${ff.rel} ---\n${content}\n--- END FILE: ${ff.rel} ---\n`;
+                totalInjectedBytes += Buffer.byteLength(content, 'utf8');
+              }
+            } catch (_) {}
+          }
+        }
+        filesContext += `\nINSTRUCTION FOR THIS DIRECTORY: The user has attached the entire folder above. Agents should inspect the files in this directory and collaboratively perform the requested task across these files (team task).\n`;
+      } else {
+        filesContext += `\n● File: ${targetRef}\n`;
+        try {
+          if (stat.size <= 80 * 1024 && totalInjectedBytes < maxTotalInjectedBytes) {
             const content = fs.readFileSync(p, 'utf8');
             filesContext += `--- FILE CONTENT START (${f.name}) ---\n${content}\n--- FILE CONTENT END (${f.name}) ---\n`;
+            totalInjectedBytes += Buffer.byteLength(content, 'utf8');
           } else {
             filesContext += `(File size: ${Math.round(stat.size / 1024)} KB - large file, read directly from repo/filesystem if needed)\n`;
           }
+        } catch (err) {
+          filesContext += `(File read error: ${err.message})\n`;
         }
-      } catch (err) {
-        filesContext += `(File read error: ${err.message})\n`;
       }
     }
-    filesContext += '\nINSTRUCTION: Please perform the requested task on the file(s) specified above or prioritize their contents.\n';
+    filesContext += '\nINSTRUCTION: Please perform the requested task on or with the files/directories specified above.\n';
     finalTask = finalTask + filesContext;
   }
 
