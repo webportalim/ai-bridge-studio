@@ -666,6 +666,33 @@ safeIpcHandle('dialog:select-project', async () => {
   return selectedPath;
 });
 
+safeIpcHandle('dialog:select-file', async (event, defaultDir) => {
+  if (!mainWindow) return [];
+  const startDir = defaultDir || loadConfig().lastProject || process.cwd();
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select File(s) for Task',
+    defaultPath: fs.existsSync(startDir) ? startDir : undefined,
+    properties: ['openFile', 'multiSelections']
+  });
+  if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+    return [];
+  }
+  return result.filePaths.map(filePath => {
+    let size = 0;
+    try {
+      size = fs.statSync(filePath).size;
+    } catch (_) {}
+    const rel = path.relative(startDir, filePath);
+    const isInside = !rel.startsWith('..') && !path.isAbsolute(rel);
+    return {
+      filePath,
+      name: path.basename(filePath),
+      relativePath: isInside ? rel.replace(/\\/g, '/') : null,
+      size
+    };
+  });
+});
+
 safeIpcHandle('dialog:save-text', async (event, defaultName, content) => {
   if (!mainWindow) return { success: false, error: 'No window' };
   const result = await dialog.showSaveDialog(mainWindow, {
@@ -978,6 +1005,7 @@ safeIpcHandle('bridge:run', async (event, options) => {
   const {
     projectPath,
     task,
+    attachedFiles = [],
     turns = 3,
     agents = 'codex,claude,agy',
     verifyCmd = 'pytest -q',
@@ -987,20 +1015,59 @@ safeIpcHandle('bridge:run', async (event, options) => {
     models = {}
   } = options;
 
+  let finalTask = task;
+  if (Array.isArray(attachedFiles) && attachedFiles.length > 0) {
+    let filesContext = '\n\n[KULLANICININ SEÇTİĞİ VE İŞLEM YAPILMASINI İSTEDİĞİ HEDEF / REFERANS DOSYALAR]:\n';
+    for (const f of attachedFiles) {
+      const p = f.filePath || f.path;
+      if (!p) continue;
+      const targetRef = f.relativePath ? `${f.relativePath} (proje içi)` : `${p} (harici dosya)`;
+      filesContext += `\n● Dosya: ${targetRef}\n`;
+      try {
+        if (fs.existsSync(p)) {
+          const stat = fs.statSync(p);
+          if (stat.size <= 80 * 1024) {
+            const content = fs.readFileSync(p, 'utf8');
+            filesContext += `--- İÇERİK BAŞLANGICI (${f.name}) ---\n${content}\n--- İÇERİK BİTİŞİ (${f.name}) ---\n`;
+          } else {
+            filesContext += `(Dosya boyutu ${Math.round(stat.size / 1024)} KB - büyük dosya, gerekirse doğrudan repodan/dosya sisteminden okuyun)\n`;
+          }
+        }
+      } catch (err) {
+        filesContext += `(Dosya okuma bilgisi: ${err.message})\n`;
+      }
+    }
+    filesContext += '\nTALİMAT: Lütfen görevi yukarıda belirtilen dosya(lar) üzerinde uygulayın veya bu dosyalardaki içeriği/talimatları öncelikli olarak dikkate alın.\n';
+    finalTask = finalTask + filesContext;
+  }
+
   const bashPath = findBash();
   const scriptPath = toMsysPath(path.join(__dirname, 'ai_bridge.sh'));
   const msysProject = toMsysPath(projectPath);
 
+  let tempTaskFile = null;
   const args = [
     scriptPath,
     'run',
     '--project', msysProject,
-    '--task', task,
     '--turns', String(turns),
     '--agents', agents,
     '--verify-cmd', verifyCmd,
     '--json-events'
   ];
+
+  if ((Array.isArray(attachedFiles) && attachedFiles.length > 0) || finalTask.length > 500) {
+    try {
+      tempTaskFile = path.join(app.getPath('temp'), `ai_bridge_task_${Date.now()}.txt`);
+      fs.writeFileSync(tempTaskFile, finalTask, 'utf8');
+      args.push('--task-file', toMsysPath(tempTaskFile));
+    } catch (e) {
+      console.warn('Failed to write temp task file, falling back to --task argument:', e);
+      args.push('--task', finalTask);
+    }
+  } else {
+    args.push('--task', finalTask);
+  }
 
   if (autoApprove) {
     args.push('--auto-approve', 'true');
@@ -1093,7 +1160,10 @@ safeIpcHandle('bridge:run', async (event, options) => {
         } catch (_) {}
       }
 
-      // Cleanup temp context file
+      // Cleanup temp task and context files
+      if (tempTaskFile && fs.existsSync(tempTaskFile)) {
+        try { fs.unlinkSync(tempTaskFile); } catch (_) {}
+      }
       if (tempContextFile && fs.existsSync(tempContextFile)) {
         try { fs.unlinkSync(tempContextFile); } catch (_) {}
       }
@@ -1111,6 +1181,12 @@ safeIpcHandle('bridge:run', async (event, options) => {
     });
 
     child.on('error', (err) => {
+      if (tempTaskFile && fs.existsSync(tempTaskFile)) {
+        try { fs.unlinkSync(tempTaskFile); } catch (_) {}
+      }
+      if (tempContextFile && fs.existsSync(tempContextFile)) {
+        try { fs.unlinkSync(tempContextFile); } catch (_) {}
+      }
       activeRunProcess = null;
       activeRunPid = null;
       if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1123,6 +1199,12 @@ safeIpcHandle('bridge:run', async (event, options) => {
 
     return { started: true, pid: child.pid };
   } catch (err) {
+    if (tempTaskFile && fs.existsSync(tempTaskFile)) {
+      try { fs.unlinkSync(tempTaskFile); } catch (_) {}
+    }
+    if (tempContextFile && fs.existsSync(tempContextFile)) {
+      try { fs.unlinkSync(tempContextFile); } catch (_) {}
+    }
     activeRunProcess = null;
     activeRunPid = null;
     return { started: false, error: err.message };

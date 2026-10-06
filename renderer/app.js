@@ -26,6 +26,7 @@ const state = {
     pairingTimer: null,
     pairingExpiresAt: 0
   },
+  attachedFiles: [],
   agentDurations: { codex: 134, claude: 92, agy: 46, verify: 2 }, // in seconds
   agentStatus: {
     codex: 'completed',
@@ -61,6 +62,7 @@ const state = {
 // Safe bridge access (supports both real Electron IPC and standalone browser testing)
 const bridge = window.aiBridge || {
   selectProject: async () => null,
+  selectFile: async () => [],
   run: async () => ({ started: true, pid: 1234 }),
   stop: async () => true,
   accept: async () => ({ success: true }),
@@ -317,6 +319,8 @@ function setupEventListeners() {
       }
     }
   });
+
+  setupTaskDragAndDrop();
 }
 
 function handleBackendEvent(ev) {
@@ -693,7 +697,8 @@ async function startRealRun() {
     agents: agents.join(','),
     verifyCmd,
     autoApprove,
-    agyTransport: getSelectedTransport()
+    agyTransport: getSelectedTransport(),
+    attachedFiles: state.attachedFiles || []
   });
 
   if (res && res.error) {
@@ -2003,6 +2008,7 @@ function showToast(type = 'info', message = '') {
 
 function renderAllState() {
   updateCharCount();
+  renderAttachedFiles();
   updateAutoApproveLabel();
   updateReviewFindingsDisplay();
   updateMetricsCards();
@@ -2040,6 +2046,157 @@ function updateCharCount() {
     counter.innerText = `${textarea.value.length}/4000`;
   }
 }
+
+// ==========================================================================
+// Attached Task Files Management & Drag-and-Drop
+// ==========================================================================
+
+async function selectTaskFiles() {
+  try {
+    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || '';
+    const selected = await bridge.selectFile(projectDir);
+    if (!selected || !selected.length) return;
+
+    if (!Array.isArray(state.attachedFiles)) {
+      state.attachedFiles = [];
+    }
+
+    const existingPaths = new Set(state.attachedFiles.map(f => f.filePath));
+    let addedCount = 0;
+
+    for (const file of selected) {
+      if (!existingPaths.has(file.filePath)) {
+        state.attachedFiles.push(file);
+        existingPaths.add(file.filePath);
+        addedCount++;
+      }
+    }
+
+    renderAttachedFiles();
+    if (addedCount > 0) {
+      showToast('info', `${addedCount} dosya eklendi.`);
+    }
+  } catch (err) {
+    console.error('File selection error:', err);
+    showToast('error', 'Dosya seçilirken hata: ' + (err.message || err));
+  }
+}
+
+function removeAttachedFile(idx) {
+  if (Array.isArray(state.attachedFiles) && idx >= 0 && idx < state.attachedFiles.length) {
+    state.attachedFiles.splice(idx, 1);
+    renderAttachedFiles();
+  }
+}
+
+function clearAllAttachedFiles() {
+  state.attachedFiles = [];
+  renderAttachedFiles();
+  showToast('info', 'Seçilen dosyalar temizlendi.');
+}
+
+function renderAttachedFiles() {
+  const container = document.getElementById('attached-files-container');
+  const countEl = document.getElementById('attached-files-count');
+  const listEl = document.getElementById('attached-files-list');
+
+  if (!container || !listEl) return;
+
+  const files = state.attachedFiles || [];
+  if (countEl) countEl.innerText = files.length;
+
+  if (files.length === 0) {
+    container.classList.add('hidden');
+    listEl.innerHTML = '';
+    return;
+  }
+
+  container.classList.remove('hidden');
+
+  listEl.innerHTML = files.map((file, idx) => {
+    const sizeStr = file.size > 0
+      ? (file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(file.size / 1024)} KB`)
+      : '';
+    const displayName = file.relativePath || file.name || file.filePath;
+    const isRepoFile = !!file.relativePath;
+
+    return `
+      <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#0b162c] border border-cyan-500/25 text-slate-200 text-xs font-mono shadow-sm group hover:border-cyan-400/50 transition-colors" title="${escapeHtml(file.filePath)}">
+        <span class="${isRepoFile ? 'text-cyan-400' : 'text-amber-400'} text-[11px]">${isRepoFile ? '📄' : '📎'}</span>
+        <span class="max-w-[220px] truncate select-all" title="${escapeHtml(file.filePath)}">${escapeHtml(displayName)}</span>
+        ${sizeStr ? `<span class="text-[10px] text-slate-400 font-sans">(${sizeStr})</span>` : ''}
+        <button type="button" onclick="removeAttachedFile(${idx})" class="w-4 h-4 ml-0.5 rounded flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer" title="Kaldır">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+function setupTaskDragAndDrop() {
+  const textarea = document.getElementById('task-text');
+  if (!textarea) return;
+
+  const highlight = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    textarea.classList.add('border-cyan-400', 'bg-[#0a1832]');
+  };
+
+  const unhighlight = (e) => {
+    e.preventDefault();
+    textarea.classList.remove('border-cyan-400', 'bg-[#0a1832]');
+  };
+
+  textarea.addEventListener('dragover', highlight);
+  textarea.addEventListener('dragenter', highlight);
+  textarea.addEventListener('dragleave', unhighlight);
+
+  textarea.addEventListener('drop', (e) => {
+    unhighlight(e);
+    if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = Array.from(e.dataTransfer.files);
+    const projectDir = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || '';
+
+    if (!Array.isArray(state.attachedFiles)) {
+      state.attachedFiles = [];
+    }
+
+    let addedCount = 0;
+    const existingPaths = new Set(state.attachedFiles.map(f => f.filePath));
+
+    for (const f of files) {
+      const fullPath = f.path || f.name;
+      if (!existingPaths.has(fullPath)) {
+        let relativePath = null;
+        if (projectDir && fullPath.toLowerCase().startsWith(projectDir.toLowerCase())) {
+          relativePath = fullPath.slice(projectDir.length).replace(/^[\\\/]+/, '').replace(/\\/g, '/');
+        }
+        state.attachedFiles.push({
+          filePath: fullPath,
+          name: f.name,
+          relativePath: relativePath,
+          size: f.size || 0
+        });
+        existingPaths.add(fullPath);
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      renderAttachedFiles();
+      showToast('info', `${addedCount} dosya göreve eklendi.`);
+    }
+  });
+}
+
+window.selectTaskFiles = selectTaskFiles;
+window.removeAttachedFile = removeAttachedFile;
+window.clearAllAttachedFiles = clearAllAttachedFiles;
 
 function updateAutoApproveLabel() {
   const chk = document.getElementById('chk-auto-approve');
