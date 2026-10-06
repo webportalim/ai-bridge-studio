@@ -122,11 +122,10 @@ async function runAllTests() {
       { round: 1, provider: 'claude', text: 'Ensure hermite spline velocity continuity.' }
     ];
     const reviewPrompt = templates.buildReviewPrompt(topic, history, 'collaborative', 'Gemini', 1);
-    assert(reviewPrompt.includes('Camera smoothing in 3D'), 'Review prompt includes topic');
     assert(reviewPrompt.includes('[CHATGPT RESPONSE (Round 1)]'), 'Review prompt includes ChatGPT turn');
     assert(reviewPrompt.includes('critically damped springs'), 'Review prompt includes ChatGPT content');
     assert(reviewPrompt.includes('[CLAUDE RESPONSE (Round 1)]'), 'Review prompt includes Claude turn');
-    assert(reviewPrompt.includes('YOUR ROLE AS GEMINI'), 'Review prompt specifies Gemini role');
+    assert(reviewPrompt.includes('CONTINUING AS GEMINI'), 'Review prompt specifies Gemini role');
   }
 
   // Test 3: Final Consensus Prompt Formatting

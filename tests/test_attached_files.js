@@ -35,7 +35,7 @@ function scanFolderForTask(folderPath, maxFiles = 40) {
 
 // 1. Test Prompt Augmentation Logic with both file and folder
 const attachedFiles = [
-  { filePath: path.resolve('utils.js'), name: 'utils.js', relativePath: 'utils.js', size: 157, isDirectory: false },
+  { filePath: path.resolve('preload.js'), name: 'preload.js', relativePath: 'preload.js', size: 4770, isDirectory: false },
   { filePath: path.resolve('tests'), name: 'tests', relativePath: 'tests', isDirectory: true }
 ];
 
@@ -96,8 +96,8 @@ if (Array.isArray(attachedFiles) && attachedFiles.length > 0) {
   finalTask = finalTask + filesContext;
 }
 
-assert(finalTask.includes('utils.js (in project)'), 'Should contain file relative path');
-assert(finalTask.includes('function reverseString'), 'Should contain utils.js content');
+assert(finalTask.includes('preload.js (in project)'), 'Should contain file relative path');
+assert(finalTask.includes('contextBridge.exposeInMainWorld'), 'Should contain preload.js content');
 assert(finalTask.includes('📁 DIRECTORY: tests (in project)'), 'Should contain directory reference');
 assert(finalTask.includes('Contained files:'), 'Should list directory files');
 assert(finalTask.includes('INSTRUCTION FOR THIS DIRECTORY: The user has attached the entire folder above'), 'Should include team task instruction');
