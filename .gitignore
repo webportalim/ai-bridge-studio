@@ -1,0 +1,4 @@
+node_modules/
+.userData/
+_backup_before_*
+*.log

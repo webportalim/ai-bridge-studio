@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MotionSmith V2 Debugging - ChatGPT</title>
+</head>
+<body>
+  <div id="__next">
+    <nav aria-label="Chat history">
+      <div>Sidebar History Links</div>
+    </nav>
+    <main>
+      <div class="conversation-container">
+        <!-- Turn 1: User -->
+        <article data-testid="conversation-turn-3">
+          <div data-message-author-role="user" data-message-id="msg-user-1">
+            <div class="whitespace-pre-wrap">Fix the camera motion jerkiness when interpolating keyframes in MotionSmith.</div>
+          </div>
+        </article>
+
+        <!-- Turn 2: Assistant -->
+        <article data-testid="conversation-turn-4">
+          <div data-message-author-role="assistant" data-message-id="msg-asst-1">
+            <div class="markdown prose">
+              <p>I have identified the root cause of the camera jerkiness. It occurs because the quaternion slerp doesn't normalize the dot product before computing the interpolation angle.</p>
+              <!-- UI toolbar with buttons to exclude -->
+              <div class="message-actions-toolbar">
+                <button aria-label="Copy">Copy</button>
+                <button aria-label="Regenerate">Regenerate</button>
+                <button aria-label="Good response">
+                  <span class="sr-only">Thumbs up</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Turn 3: User -->
+        <article data-testid="conversation-turn-5">
+          <div data-message-author-role="user" data-message-id="msg-user-2">
+            <div class="whitespace-pre-wrap">Great, can you provide the math and unit tests?</div>
+          </div>
+        </article>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

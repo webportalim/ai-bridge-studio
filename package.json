@@ -1,0 +1,23 @@
+{
+  "name": "ai-bridge-desktop",
+  "version": "1.0.0",
+  "description": "AI Bridge Desktop V1 — Three AIs. One workflow. Better results.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"OK\""
+  },
+  "keywords": [
+    "ai-bridge",
+    "codex",
+    "claude",
+    "antigravity",
+    "orchestrator",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0"
+  }
+}

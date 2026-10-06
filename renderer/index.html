@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Bridge Desktop V1</title>
+  <script src="tailwind.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="h-screen w-screen flex overflow-hidden text-sm bg-[#060c18] text-[#e2e8f0]">
+
+  <!-- ========================================================= -->
+  <!-- 1. SOL SIDEBAR                                            -->
+  <!-- ========================================================= -->
+  <aside class="sidebar-width w-64 bg-[#091122] border-r border-[#1a2845] flex flex-col justify-between shrink-0 select-none z-20">
+    <div>
+      <!-- App Header / Logo -->
+      <div class="h-14 px-5 flex items-center gap-3 border-b border-[#1a2845] titlebar-drag">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-cyan-500/25 no-drag cursor-pointer">
+          <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5h-13L12 6.5z"/>
+          </svg>
+        </div>
+        <span class="font-bold text-base tracking-wide text-white">AI Bridge</span>
+        <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800/80 ml-auto no-drag">v1.0.0</span>
+      </div>
+
+      <!-- Main Navigation Links -->
+      <nav class="p-3 space-y-1">
+        <button onclick="switchTab('run')" id="nav-run" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg font-medium text-left transition-all bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/10">
+          <svg class="w-4 h-4 shrink-0 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="text-xs font-semibold tracking-wide">Run</span>
+        </button>
+
+        <button onclick="switchTab('projects')" id="nav-projects" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg font-medium text-left transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+          </svg>
+          <span class="text-xs font-medium">Projects</span>
+        </button>
+
+        <button onclick="switchTab('history')" id="nav-history" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg font-medium text-left transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="text-xs font-medium">History</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="my-3 border-t border-[#16233b]"></div>
+
+        <!-- LLM Hub Section -->
+        <div class="px-2 py-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-slate-300 font-semibold text-xs">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <span>LLM Hub</span>
+            </div>
+            <span class="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-full bg-purple-900/60 text-purple-300 border border-purple-700/60">New</span>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Connect & chat with LLMs</div>
+        </div>
+
+        <div class="space-y-0.5 pt-1">
+          <button onclick="switchTab('llm-hub')" id="nav-llm-hub" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-cyan-300 hover:bg-[#0c1830] transition-colors border border-transparent hover:border-cyan-500/20">
+            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <span>Open LLM Hub</span>
+          </button>
+
+          <button onclick="switchTab('llm-hub'); scrollToLLMSection('saved-chats');" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 transition-colors">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            </svg>
+            <span>Saved Chats</span>
+          </button>
+
+          <button onclick="switchTab('llm-hub'); scrollToLLMSection('connected-tabs');" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 transition-colors">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            <span>Connected Tabs</span>
+          </button>
+
+          <button onclick="switchTab('llm-hub'); scrollToLLMSection('web-search');" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 transition-colors">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <span>Web Search</span>
+          </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="my-3 border-t border-[#16233b]"></div>
+
+        <button onclick="switchTab('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg font-medium text-left transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span class="text-xs font-medium">Settings</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Sidebar Bottom Card: Three AIs Branding -->
+    <div class="p-3 border-t border-[#1a2845] bg-[#070e1c]">
+      <div class="p-3.5 rounded-xl bg-gradient-to-br from-[#0c1a33] via-[#09152b] to-[#070f20] border border-[#1e3357] relative overflow-hidden shadow-inner">
+        <svg class="brand-wave" viewBox="0 0 200 56" preserveAspectRatio="none" fill="none">
+          <path d="M0 40 C 30 10, 60 60, 100 32 S 170 8, 200 34" stroke="#22d3ee" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M0 48 C 40 26, 70 62, 110 42 S 170 24, 200 46" stroke="#8b5cf6" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+        </svg>
+        <!-- Glow wave background -->
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="text-[12px] font-bold text-white tracking-tight leading-snug">Three AIs.</div>
+        <div class="text-[12px] font-bold text-slate-300 leading-snug">One workflow.</div>
+        <div class="text-[12px] font-bold text-cyan-400 leading-snug">Better results.</div>
+
+        <!-- 3 Agent Icons Grid -->
+        <div class="grid grid-cols-3 gap-1 mt-3 pt-2.5 border-t border-[#182a4a] text-center relative z-10">
+          <!-- Codex -->
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-6 h-6 rounded-full bg-emerald-950/80 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-sm">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/>
+              </svg>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium">Codex</span>
+          </div>
+
+          <!-- Claude -->
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-6 h-6 rounded-full bg-amber-950/80 border border-amber-500/50 flex items-center justify-center text-amber-400 shadow-sm">
+              <span class="text-xs font-bold leading-none">✱</span>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium">Claude</span>
+          </div>
+
+          <!-- Antigravity -->
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-sm">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3l9 16H3l9-16z"/>
+              </svg>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium">Antigravity</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between px-1 pt-2 text-[10px] text-slate-600 font-mono">
+        <span>v1.0.0</span>
+        <span class="flex items-center gap-1 text-emerald-500 font-sans"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Engine Online</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================= -->
+  <!-- 2. ANA İÇERİK ALANI                                       -->
+  <!-- ========================================================= -->
+  <div class="flex-1 flex flex-col min-w-0 bg-[#060c18]">
+
+    <!-- Top Header Bar (With Frameless Window Controls) -->
+    <header class="h-12 border-b border-[#1a2845] px-4 flex items-center justify-between bg-[#081020] shrink-0 select-none titlebar-drag">
+      <div class="flex items-center gap-3 no-drag">
+        <div class="hero-title"><span class="hero-orbs"><i></i><i></i><i></i></span><span class="txt">Orchestrate Codex, Claude, and Antigravity</span></div>
+      </div>
+
+      <div class="flex items-center gap-4 no-drag">
+        <!-- Ready Status Badge -->
+        <div id="top-ready-badge" class="status-pill ready">
+          <i></i>
+          <span id="top-status-text">Ready</span>
+        </div>
+
+        <!-- Demo Mode Toggle -->
+        <div class="flex items-center gap-1.5 bg-[#0a1428] border border-[#1b2b48] px-2.5 py-1 rounded-lg">
+          <span class="text-[10px] font-mono text-slate-400">Demo:</span>
+          <button onclick="toggleDemoMode()" id="btn-demo-mode" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 hover:text-white transition-colors">OFF</button>
+        </div>
+
+        <!-- Timestamp Clock -->
+        <span class="text-xs text-slate-400 font-mono" id="clock-display">2026-09-20 17:15</span>
+
+        <!-- Theme / Sparkle Icon -->
+        <button class="text-slate-400 hover:text-slate-200 transition-colors p-1" title="Theme">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        </button>
+
+        <!-- Window Controls (Minimize, Maximize, Close) -->
+        <div class="flex items-center gap-1 pl-2 border-l border-[#1e3256]">
+          <button onclick="windowMinimize()" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors" title="Minimize">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M20 12H4"/></svg>
+          </button>
+          <button onclick="windowMaximize()" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors" title="Maximize">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/></svg>
+          </button>
+          <button onclick="windowClose()" class="w-7 h-7 flex items-center justify-center rounded hover:bg-rose-600 text-slate-400 hover:text-white transition-colors" title="Close">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="run-progress" class="run-progress"></div>
+    </header>
+
+    <!-- ===================================================== -->
+    <!-- TAB 1: RUN EKRANI (Ana Çalışma Ekranı)                 -->
+    <!-- ===================================================== -->
+    <main id="tab-run" class="flex-1 p-3.5 overflow-y-auto grid grid-cols-12 gap-3.5">
+
+      <!-- =================================================== -->
+      <!-- SOL KOLON (Project, Task, Pipeline, Live Log) (8/12) -->
+      <!-- =================================================== -->
+      <div class="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col gap-3.5">
+
+        <!-- 1. PROJECT CARD -->
+        <div class="bg-[#0a1324] border border-[#1b2b48] rounded-xl p-3.5 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+              </svg>
+              <span>Project</span>
+            </label>
+            <span class="git-chip git-ok" id="branch-badge">branch: master</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="project-input" value="F:\AI-Bridge-Test" onchange="onProjectChange()" class="flex-1 bg-[#060c18] border border-[#1e3256] rounded-lg px-3 py-2 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
+            <button onclick="browseFolder()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-1.5 shrink-0">
+              Browse...
+            </button>
+          </div>
+          <div id="git-warning" class="hidden"></div>
+        </div>
+
+        <!-- 2. TASK, AGENTS & RUN CONTROLS -->
+        <div class="glass p-4 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div class="card-title">
+              <span class="ico ico-violet"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
+              Task <span class="sub">What should the agents do?</span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-mono" id="char-count">0/4000</span>
+          </div>
+
+          <textarea id="task-text" oninput="updateCharCount()" rows="3" class="field p-3 text-xs leading-relaxed resize-none font-sans placeholder-slate-500" placeholder="Describe the task or bug to solve… (e.g. Fix the camera keyframe jitter at its root cause and add a regression test.)"></textarea>
+
+          <!-- Agent loadout: enable + model + effort, one row -->
+          <div>
+            <div class="card-title mb-2.5">
+              <span class="ico ico-cyan"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m-2 6h2m14-6h2m-2 6h2M7 7h10v10H7z"/></svg></span>
+              Agents <span class="sub">model &amp; effort · "Default" = the tool's own setting</span>
+            </div>
+            <div class="loadout">
+              <!-- Codex -->
+              <div class="agent-pick ap-codex">
+                <label class="ap-head">
+                  <input type="checkbox" id="chk-codex" checked class="ap-check" onchange="onAgentToggle()">
+                  <span class="ap-orb"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12"/></svg></span>
+                  <span><span class="ap-name">Codex</span><span class="ap-role">Builder</span></span>
+                  <span class="ap-switch"></span>
+                </label>
+                <div class="ap-row">
+                  <div class="ap-field" id="field-codex">
+                    <select id="model-codex" class="ap-select ap-model" onchange="onModelChange('codex')"></select>
+                    <input id="model-codex-custom" class="ap-custom" type="text" placeholder="model name…" oninput="onModelChange('codex', true)">
+                    <button class="ap-back" type="button" onclick="exitCustomModel('codex')" title="Back to list">↩</button>
+                  </div>
+                  <select id="effort-codex" class="ap-select ap-effort" onchange="saveModelSettings()"></select>
+                </div>
+              </div>
+
+              <!-- Claude -->
+              <div class="agent-pick ap-claude">
+                <label class="ap-head">
+                  <input type="checkbox" id="chk-claude" checked class="ap-check" onchange="onAgentToggle()">
+                  <span class="ap-orb"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2.2" d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/></svg></span>
+                  <span><span class="ap-name">Claude</span><span class="ap-role">Reviewer</span></span>
+                  <span class="ap-switch"></span>
+                </label>
+                <div class="ap-row">
+                  <div class="ap-field" id="field-claude">
+                    <select id="model-claude" class="ap-select ap-model" onchange="onModelChange('claude')"></select>
+                    <input id="model-claude-custom" class="ap-custom" type="text" placeholder="model name…" oninput="onModelChange('claude', true)">
+                    <button class="ap-back" type="button" onclick="exitCustomModel('claude')" title="Back to list">↩</button>
+                  </div>
+                  <select id="effort-claude" class="ap-select ap-effort" onchange="saveModelSettings()"></select>
+                </div>
+              </div>
+
+              <!-- Antigravity -->
+              <div class="agent-pick ap-agy">
+                <label class="ap-head">
+                  <input type="checkbox" id="chk-agy" checked class="ap-check" onchange="onAgentToggle()">
+                  <span class="ap-orb"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4l8.5 15h-17L12 4z"/></svg></span>
+                  <span><span class="ap-name">Antigravity</span><span class="ap-role">Verifier</span></span>
+                  <span class="ap-switch"></span>
+                </label>
+                <div class="ap-row">
+                  <div class="ap-field" id="field-agy">
+                    <select id="model-agy" class="ap-select ap-model" onchange="onModelChange('agy')"></select>
+                    <input id="model-agy-custom" class="ap-custom" type="text" placeholder="model name…" oninput="onModelChange('agy', true)">
+                    <button class="ap-back" type="button" onclick="exitCustomModel('agy')" title="Back to list">↩</button>
+                  </div>
+                  <select id="effort-agy" class="ap-select ap-effort" onchange="saveModelSettings()"></select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Run Controls Bar -->
+          <div class="pt-3.5 border-t border-[#1a2b47]/80 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-5 flex-wrap">
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-400 font-medium">Max Turns</span>
+                <input type="number" id="turns-input" value="3" min="1" max="10" class="field w-14 !rounded-lg px-1.5 py-1.5 text-center font-mono text-xs">
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-400 font-medium">Auto Approve</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="chk-auto-approve" onchange="updateAutoApproveLabel()">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span id="auto-approve-label" class="text-[10px] text-slate-500 font-mono">Off</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-400 font-medium">Verify Cmd</span>
+                <input type="text" id="verify-input" value="pytest -q" placeholder="pytest -q" class="field !w-36 !rounded-lg px-2.5 py-1.5 font-mono text-xs">
+                <span class="text-slate-500 cursor-help" title="Independent command executed by verification guard (e.g. pytest -q, npm test)">ⓘ</span>
+              </div>
+            </div>
+
+            <button id="btn-run" onclick="toggleRun()" class="run-btn">
+              <svg id="btn-run-icon" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <span id="btn-run-text">Run Bridge</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. PIPELINE -->
+        <div class="glass p-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="card-title">
+              <span class="ico ico-emerald"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 3v12m0 0a3 3 0 103 3 3 3 0 00-3-3zm12-6a3 3 0 100-6 3 3 0 000 6zm0 0v3a3 3 0 01-3 3H9"/></svg></span>
+              Pipeline <span class="sub">Codex → Claude → Antigravity</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="chip" id="pipe-turn-chip">Turn <b>1/3</b></span>
+              <span class="chip" id="pipe-elapsed-chip">⏱ <b>0m 00s</b></span>
+              <div class="flex items-center gap-2">
+                <div class="pipe-progress"><div id="pipe-progress-bar"></div></div>
+                <span class="text-[11px] font-mono text-slate-400" id="pipe-progress-text">0/3</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div id="pipe-card-codex" class="pipeline-card waiting">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="pc-orb"><span class="pc-num">1</span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12"/></svg></div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-[13px] font-bold text-white">Codex</span>
+                    <span id="pipe-codex-badge" class="st-badge st-waiting">Waiting</span>
+                    <span id="pipe-codex-model" class="model-chip"></span>
+                  </div>
+                  <div id="pipe-codex-desc" class="text-[11.5px] text-slate-400 mt-1 truncate">Waiting in queue...</div>
+                </div>
+              </div>
+              <span id="pipe-codex-time" class="time-pill hidden"></span>
+            </div>
+
+            <div id="pipe-card-claude" class="pipeline-card waiting">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="pc-orb"><span class="pc-num">2</span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2.2" d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/></svg></div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-[13px] font-bold text-white">Claude Reviewer</span>
+                    <span id="pipe-claude-badge" class="st-badge st-waiting">Waiting</span>
+                    <span id="pipe-claude-model" class="model-chip"></span>
+                  </div>
+                  <div id="pipe-claude-desc" class="text-[11.5px] text-slate-400 mt-1 truncate">Waiting in queue...</div>
+                </div>
+              </div>
+              <span id="pipe-claude-time" class="time-pill hidden"></span>
+            </div>
+
+            <div id="pipe-card-agy" class="pipeline-card waiting">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="pc-orb"><span class="pc-num">3</span><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4l8.5 15h-17L12 4z"/></svg></div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-[13px] font-bold text-white">Antigravity</span>
+                    <span id="pipe-agy-badge" class="st-badge st-waiting">Waiting</span>
+                    <span id="pipe-agy-model" class="model-chip"></span>
+                  </div>
+                  <div id="pipe-agy-desc" class="text-[11.5px] text-slate-400 mt-1 truncate">Waiting in queue...</div>
+                </div>
+              </div>
+              <span id="pipe-agy-time" class="time-pill hidden"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. LIVE LOG CONSOLE -->
+        <div class="glass p-4 flex-1 flex flex-col min-h-[240px]">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-4">
+              <div class="term-chrome"><span class="term-dot" style="background:#fb7185"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#34d399"></span></div>
+              <div class="card-title">Live Log <span class="sub font-mono">bridge_latest.log</span></div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="clearLog()" class="btn-ghost !py-1.5 !px-3 !text-[11px]">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Clear
+              </button>
+              <button onclick="openLogInEditor()" class="btn-ghost !py-1.5 !px-3 !text-[11px]">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                Open in Editor
+              </button>
+            </div>
+          </div>
+
+          <div id="log-console" class="flex-1 p-3.5 font-mono text-[11px] leading-relaxed text-slate-300 overflow-y-auto space-y-1 max-h-[300px]"></div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- SAĞ KOLON (Chat Context, Change Overview, Final Decision) -->
+      <!-- ========================================================= -->
+      <div class="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col gap-3.5">
+
+        <!-- 1. CHAT CONTEXT -->
+        <div class="bg-[#0a1324] border border-[#1b2b48] rounded-xl p-3.5 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              <span>Chat Context</span>
+            </span>
+            <span id="chat-context-badge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+              Not Connected
+            </span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-[#060c18] border border-[#1a2b47] flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+              <div id="chat-context-icon-container" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/></svg>
+              </div>
+              <div class="min-w-0">
+                <div id="chat-context-title" class="text-xs font-semibold text-white truncate">No Extension Paired</div>
+                <div id="chat-context-meta" class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">Pair browser extension to sync web chats</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Truncation Alert (when context > 250k chars) -->
+          <div id="chat-context-trunc-warn" class="hidden mt-2 p-2 rounded bg-amber-950/60 border border-amber-800 text-[10.5px] text-amber-300 flex items-center gap-1.5">
+            <span class="text-amber-400">⚠️</span>
+            <span>The conversation exceeded the 250k limit, so the most recent messages were kept as reference.</span>
+          </div>
+
+          <div class="flex gap-2 mt-2.5" id="chat-context-actions">
+            <button id="btn-chat-pair" onclick="openPairingModal()" class="flex-1 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-[11px] font-semibold text-white transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-600/20">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              Pair Extension
+            </button>
+            <button id="btn-chat-refresh" onclick="refreshChatContext()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-medium text-slate-200 border border-slate-700 transition-colors items-center justify-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Refresh
+            </button>
+            <button id="btn-chat-clear" onclick="disconnectChatContext()" class="hidden px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-medium text-slate-200 border border-slate-700 transition-colors items-center justify-center gap-1">
+              <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Clear Context
+            </button>
+          </div>
+
+          <div class="flex items-center gap-1.5 mt-2.5 text-[10.5px] text-slate-500 leading-snug">
+            <span class="text-cyan-400 shrink-0">ⓘ</span>
+            <span>The imported conversation is passed via <code class="text-slate-400 font-mono">--context-file</code> so every agent gets full context.</span>
+          </div>
+        </div>
+
+        <!-- 2. CHANGE OVERVIEW -->
+        <div class="glass p-4 flex flex-col gap-3.5">
+          <div class="flex items-center justify-between">
+            <div class="card-title">
+              <span class="ico ico-cyan"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span>
+              Change Overview
+            </div>
+            <button onclick="showFilesModal()" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View Files
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="kpi" style="--kc:#22d3ee"><svg class="kpi-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><div class="kpi-num" id="metric-files">0</div><div class="kpi-lbl">Files Changed</div></div>
+            <div class="kpi" style="--kc:#34d399"><svg class="kpi-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 4v16m8-8H4"/></svg><div class="kpi-num" id="metric-added">+0</div><div class="kpi-lbl">Lines Added</div></div>
+            <div class="kpi" style="--kc:#fb7185"><svg class="kpi-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M20 12H4"/></svg><div class="kpi-num" id="metric-removed">-0</div><div class="kpi-lbl">Lines Removed</div></div>
+            <div class="kpi" style="--kc:#fbbf24"><svg class="kpi-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg><div class="kpi-num" id="metric-warnings">0</div><div class="kpi-lbl">Warnings</div></div>
+          </div>
+
+          <div class="pt-1">
+            <div class="stat-row">
+              <span class="lbl">
+                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Tests
+              </span>
+              <div class="flex items-center gap-2.5">
+                <div class="w-24 h-2 bg-slate-800/80 rounded-full overflow-hidden">
+                  <div id="test-progress-bar" class="h-full bg-slate-600 rounded-full" style="width: 0%;"></div>
+                </div>
+                <span id="test-progress-text" class="text-slate-400 font-mono font-bold text-[11px]">-</span>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <span class="lbl">Review Findings</span>
+              <span class="font-mono text-slate-300 text-[11px] flex items-center gap-2.5" id="review-findings-text">
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Blocker 0</span>
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Major 0</span>
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Minor 0</span>
+              </span>
+            </div>
+
+            <div class="stat-row">
+              <span class="lbl">Risk Level</span>
+              <span id="risk-level-badge" class="text-slate-400 font-bold flex items-center gap-1">-</span>
+            </div>
+
+            <div class="stat-row">
+              <span class="lbl">Duration</span>
+              <span id="total-duration-text" class="text-slate-200 font-mono font-medium">-</span>
+            </div>
+
+            <div class="stat-row">
+              <span class="lbl">Agents</span>
+              <div class="flex items-center gap-1.5 text-[10px] font-mono flex-wrap justify-end">
+                <span id="pill-codex" class="hidden px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-700/50">Codex</span>
+                <span id="pill-claude" class="hidden px-2 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-700/50">Claude</span>
+                <span id="pill-agy" class="hidden px-2 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-700/50">AGY</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2.5 border-t border-[#1a2b47]/80">
+            <div class="text-[11px] font-bold text-slate-300 mb-1.5 uppercase tracking-wider">Main Changes</div>
+            <ul id="main-changes-list" class="text-[11.5px] text-slate-400 space-y-1 list-disc list-inside">
+              <li>No runs yet.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 3. FINAL DECISION (Accept / Rollback) -->
+        <div id="final-decision-container" class="glass p-4 flex flex-col gap-3.5" style="border-color: rgba(34,211,238,0.28) !important;">
+          <div class="flex items-center justify-between">
+            <div class="card-title">
+              <span class="ico ico-amber"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg></span>
+              Final Decision
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono" id="decision-timestamp"></span>
+          </div>
+
+          <!-- Dynamic Reactive Decision Banner (children[0] = icon, children[1] = text) -->
+          <div id="decision-banner" class="p-3.5 rounded-lg bg-[#070e1c] border border-[#16243d] flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-lg shrink-0">●</div>
+            <div>
+              <div class="text-xs font-bold text-slate-300 uppercase tracking-wider" id="decision-title">AWAITING EXECUTION</div>
+              <div class="text-[11px] text-slate-400 leading-tight mt-0.5" id="decision-desc">Click 'Run Bridge' to start.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-x-5 text-xs">
+            <div class="stat-row"><span class="lbl">Claude Review</span><span class="text-slate-400 font-bold font-mono" id="dec-claude">-</span></div>
+            <div class="stat-row"><span class="lbl">Antigravity</span><span class="text-slate-400 font-bold font-mono" id="dec-agy">-</span></div>
+            <div class="stat-row"><span class="lbl">Verification</span><span class="text-slate-400 font-bold font-mono" id="dec-verify">-</span></div>
+            <div class="stat-row"><span class="lbl">Perm. Block</span><span class="text-slate-400 font-bold font-mono" id="dec-blocked">-</span></div>
+            <div class="stat-row"><span class="lbl">Changed Files</span><span class="text-slate-200 font-mono" id="dec-files">0</span></div>
+            <div class="stat-row"><span class="lbl">Warnings</span><span class="text-slate-200 font-mono" id="dec-warnings">0</span></div>
+            <div class="stat-row col-span-2"><span class="lbl">Total Duration</span><span class="text-slate-200 font-mono" id="dec-duration">-</span></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="openA4Modal()" class="btn-ghost">
+              <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Full Decision (A4)
+            </button>
+            <button onclick="openLogInEditor()" class="btn-ghost">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              Open Log
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-3 border-t border-[#1a2b47]/80">
+            <button onclick="handleAccept()" id="btn-accept" class="py-2.5 bg-slate-800 text-slate-500 font-bold text-xs rounded-lg cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+              <span>✓</span> Accept Changes
+            </button>
+            <button onclick="handleRollback()" id="btn-rollback" class="py-2.5 bg-slate-900 text-slate-600 font-bold text-xs rounded-lg cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+              <span>↺</span> Rollback
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ===================================================== -->
+    <!-- TAB 2: PROJECTS VIEW                                  -->
+    <!-- ===================================================== -->
+    <section id="tab-projects" class="hidden flex-1 p-6 overflow-y-auto">
+      <div class="max-w-4xl mx-auto space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-white">Managed Git Projects</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Local git repositories orchestrated by AI Bridge</p>
+          </div>
+          <button onclick="browseFolder()" class="px-3.5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-md shadow-cyan-600/20">
+            <span>+</span> Add Project
+          </button>
+        </div>
+
+        <div id="projects-list-container" class="space-y-3">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- TAB 3: HISTORY VIEW                                   -->
+    <!-- ===================================================== -->
+    <section id="tab-history" class="hidden flex-1 p-6 overflow-y-auto">
+      <div class="max-w-5xl mx-auto space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-white">Run History</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Runs executed by ai_bridge.sh on isolated branches</p>
+          </div>
+          <button onclick="loadHistory()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div class="rounded-xl bg-[#0a1324] border border-[#1b2b48] overflow-hidden shadow-sm">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#081020] text-slate-400 border-b border-[#1b2b48]">
+              <tr>
+                <th class="p-3 font-semibold">Run ID</th>
+                <th class="p-3 font-semibold">Task</th>
+                <th class="p-3 font-semibold">Karar</th>
+                <th class="p-3 font-semibold">Duration</th>
+                <th class="p-3 font-semibold">Changed Files</th>
+                <th class="p-3 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body" class="divide-y divide-[#142036] text-slate-300">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- TAB 4: SETTINGS VIEW                                  -->
+    <!-- ===================================================== -->
+    <section id="tab-settings" class="hidden flex-1 p-6 overflow-y-auto">
+      <div class="max-w-3xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-white">System & Backend Settings</h2>
+          <p class="text-xs text-slate-400 mt-0.5">CLI tool health and orchestration parameters</p>
+        </div>
+
+        <!-- Doctor Diagnostics Card -->
+        <div class="p-5 rounded-xl bg-[#0a1324] border border-[#1b2b48] space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-semibold text-slate-200">CLI Health Check (Doctor Status)</span>
+              <p class="text-[11px] text-slate-400 mt-0.5">System tools verified via ai_bridge.sh doctor</p>
+            </div>
+            <button onclick="runDoctorCheck()" id="btn-doctor" class="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm">
+              Test Et (Doctor)
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs" id="doctor-results">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Timeout Ayarları -->
+        <div class="p-5 rounded-xl bg-[#0a1324] border border-[#1b2b48] space-y-3 text-xs">
+          <div class="font-semibold text-slate-200">Agent Timeout Settings (seconds)</div>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="text-slate-400 block mb-1">Codex Timeout</label>
+              <input type="number" id="setting-codex-timeout" value="1500" class="w-full bg-[#060c18] border border-[#1e3256] rounded-lg p-2 text-slate-200 font-mono">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Claude Timeout</label>
+              <input type="number" id="setting-claude-timeout" value="900" class="w-full bg-[#060c18] border border-[#1e3256] rounded-lg p-2 text-slate-200 font-mono">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">AGY Timeout</label>
+              <input type="number" id="setting-agy-timeout" value="1500" class="w-full bg-[#060c18] border border-[#1e3256] rounded-lg p-2 text-slate-200 font-mono">
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser Extension Köprüsü Ayarları -->
+        <div class="p-5 rounded-xl bg-[#0a1324] border border-[#1b2b48] space-y-3 text-xs">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-slate-200 flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                <span>Browser Extension Bridge</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Local HTTP bridge status and browser extension pairing</p>
+            </div>
+            <div id="settings-bridge-badge" class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-[11px] font-mono">
+              Not Paired
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <span class="text-slate-400 font-mono text-[11px]" id="settings-bridge-port">Port: 127.0.0.1:45821</span>
+            <div class="flex gap-2">
+              <button onclick="openPairingModal()" class="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition-colors">
+                Pair Extension
+              </button>
+              <button onclick="unpairBrowserExtension()" id="btn-settings-unpair" class="hidden px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-rose-400 rounded-lg text-xs font-semibold border border-slate-700 transition-colors">
+                Unpair
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="saveSettings()" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs rounded-lg shadow-md transition-all">
+          Save Settings
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- TAB 5: LLM HUB VIEW (Real Multi-LLM Web Orchestration)-->
+    <!-- ===================================================== -->
+    <section id="tab-llm-hub" class="hidden flex-1 p-4 overflow-y-auto">
+      <div class="space-y-4 max-w-[1800px] mx-auto">
+
+        <!-- Banner Header Card -->
+        <div class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-purple-600/20">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-white flex items-center gap-2">
+                <span>LLM Hub Web Orchestrator</span>
+                <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-purple-950 text-purple-300 border border-purple-800">V1 Live</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">Orchestrate multi-round discussions across ChatGPT, Claude & Gemini web sessions — zero API keys required.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="openConnectedTabsModal()" class="px-3 py-1.5 bg-[#0e1b33] hover:bg-[#142647] text-cyan-300 rounded-lg text-xs font-semibold border border-cyan-500/30 transition-colors flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Manage Tabs</span>
+            </button>
+            <button onclick="openSavedChatsModal()" class="px-3 py-1.5 bg-[#0e1b33] hover:bg-[#142647] text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 transition-colors flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+              <span>Saved Chats</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Disconnected Warning Banner (Hidden by default) -->
+        <div id="llm-error-alert" class="hidden p-3.5 rounded-xl bg-rose-950/70 border border-rose-500/60 text-xs text-rose-200 flex items-center justify-between animate-fadeIn">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span id="llm-error-text">One or more selected LLM browser tabs are not connected.</span>
+          </div>
+          <button onclick="hideLLMError()" class="text-rose-400 hover:text-white text-sm font-bold">✕</button>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4">
+          <!-- LEFT COLUMN (Connected Web Sessions, Controls, Stream, Consensus, Follow-up) -->
+          <div class="col-span-12 lg:col-span-8 flex flex-col gap-4">
+
+            <!-- Card 1: Connected Web Sessions -->
+            <div id="connected-tabs-card" class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Connected Web Sessions</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Select models to include in multi-round orchestration. Active tabs are auto-detected.</p>
+                </div>
+                <button onclick="refreshTabDetection()" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1">
+                  <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  <span>Re-detect</span>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                <!-- ChatGPT Card -->
+                <div class="p-3 rounded-lg bg-[#060c18] border border-[#1b2c4c] flex items-center justify-between transition-all hover:border-emerald-500/40">
+                  <div class="flex items-center gap-2.5">
+                    <input type="checkbox" id="llm-chk-chatgpt" checked class="custom-checkbox" onchange="onLLMProviderToggle()">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/></svg>
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-white">ChatGPT</div>
+                      <div id="llm-tab-badge-chatgpt" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Detected
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-mono text-slate-500">P1</span>
+                </div>
+
+                <!-- Claude Card -->
+                <div class="p-3 rounded-lg bg-[#060c18] border border-[#1b2c4c] flex items-center justify-between transition-all hover:border-amber-500/40">
+                  <div class="flex items-center gap-2.5">
+                    <input type="checkbox" id="llm-chk-claude" checked class="custom-checkbox" onchange="onLLMProviderToggle()">
+                    <div class="w-8 h-8 rounded-lg bg-amber-950 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                      <span class="text-sm font-bold">✱</span>
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-white">Claude</div>
+                      <div id="llm-tab-badge-claude" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Detected
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-mono text-slate-500">P2</span>
+                </div>
+
+                <!-- Gemini Card -->
+                <div class="p-3 rounded-lg bg-[#060c18] border border-[#1b2c4c] flex items-center justify-between transition-all hover:border-purple-500/40">
+                  <div class="flex items-center gap-2.5">
+                    <input type="checkbox" id="llm-chk-gemini" checked class="custom-checkbox" onchange="onLLMProviderToggle()">
+                    <div class="w-8 h-8 rounded-lg bg-purple-950 border border-purple-500/40 flex items-center justify-center text-purple-400 shrink-0">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9l-7 3 7 3 3 7 3-7 7-3-7-3-3-7z"/></svg>
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-white">Gemini</div>
+                      <div id="llm-tab-badge-gemini" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Detected
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-mono text-slate-500">Synthesizer</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: New Conversation Controls -->
+            <div class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] shadow-sm space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <span class="text-xs font-bold text-white flex items-center gap-2">
+                  <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                  New Conversation Setup
+                </span>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] text-slate-400 mr-1">Mode:</span>
+                  <button onclick="setLLMMode('collaborative')" id="mode-btn-collaborative" class="px-2.5 py-1 rounded bg-cyan-600/30 text-cyan-300 border border-cyan-500/50 text-xs font-semibold transition-all">Collaborative</button>
+                  <button onclick="setLLMMode('debate')" id="mode-btn-debate" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-medium transition-all">Debate</button>
+                  <button onclick="setLLMMode('brainstorm')" id="mode-btn-brainstorm" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-medium transition-all">Brainstorm</button>
+                  <button onclick="setLLMMode('code_review')" id="mode-btn-code_review" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-medium transition-all">Code Review</button>
+                </div>
+              </div>
+
+              <div class="relative">
+                <textarea id="llm-topic-input" oninput="updateLLMCharCount()" rows="2" class="w-full bg-[#060c18] border border-[#1e3256] rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 pr-16 font-sans resize-none leading-relaxed" placeholder="Enter topic, problem, or architectural question to orchestrate across models...">How can we make camera motion in 3D games feel more natural and cinematic?</textarea>
+                <span id="llm-char-count" class="absolute right-3 bottom-2.5 text-[10px] text-slate-500 font-mono">66/2000</span>
+              </div>
+
+              <div class="flex items-center justify-between pt-1 flex-wrap gap-2">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-slate-400">Rounds:</span>
+                    <input type="number" id="llm-rounds-input" value="2" min="1" max="5" class="w-12 bg-[#060c18] border border-[#1e3256] rounded px-1.5 py-1 text-center font-mono text-xs text-slate-200 focus:border-cyan-500">
+                  </div>
+                  <span class="text-[11px] text-slate-500">Sequential model turns</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button id="btn-llm-stop" onclick="stopLLMSession()" class="hidden px-3.5 py-2 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold text-xs rounded-lg transition-all flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-sm bg-rose-400"></span> Stop Session
+                  </button>
+                  <button id="btn-llm-start" onclick="startLLMSession()" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs rounded-lg shadow-md shadow-cyan-500/25 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span>►</span> Start Session
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Multi-LLM Discussion Stream -->
+            <div class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] shadow-sm flex flex-col gap-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                    <span>Multi-LLM Discussion</span>
+                    <span id="llm-stream-count-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">3 messages</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Live turn-by-turn conversation between connected models.</p>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="clearLLMDiscussion()" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors">Clear</button>
+                  <button onclick="copyConsensusText()" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition-colors">Copy</button>
+                </div>
+              </div>
+
+              <!-- Message Stream List -->
+              <div id="llm-stream-messages" class="space-y-3 bg-[#060c18] rounded-xl p-3.5 border border-[#142036] max-h-96 overflow-y-auto">
+                <!-- Initial Mock / Stream Content Loaded Dynamically -->
+              </div>
+
+              <!-- Thinking / Generating Live Indicator -->
+              <div id="llm-generating-indicator" class="hidden p-3 rounded-lg bg-[#0c1830] border border-cyan-500/30 flex items-center justify-between text-xs animate-pulse">
+                <div class="flex items-center gap-2 text-cyan-300">
+                  <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                  </div>
+                  <span id="llm-generating-text">ChatGPT is generating response...</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">Streaming Live</span>
+              </div>
+
+              <!-- Final Consensus Synthesis Card -->
+              <div id="llm-consensus-card" class="hidden p-4 rounded-xl bg-gradient-to-br from-[#0c1a36] via-[#09152b] to-[#0a1224] border border-purple-500/50 shadow-lg shadow-purple-950/20 space-y-3">
+                <div class="flex items-center justify-between border-b border-[#1c2e4e] pb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                      ★
+                    </div>
+                    <div>
+                      <span class="text-xs font-bold text-white uppercase tracking-wider">Final Consensus Synthesis</span>
+                      <span class="text-[10px] text-purple-300 block">Synthesized across all participants</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-1.5">
+                    <button id="btn-consensus-expand" onclick="toggleConsensusExpand()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] rounded border border-slate-700 transition-colors">Expand</button>
+                    <button onclick="exportConsensusMarkdown()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] rounded border border-slate-700 transition-colors">Export .md</button>
+                    <button onclick="transferConsensusToTask()" class="px-2 py-1 bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-bold rounded shadow transition-colors">Use as Run Task</button>
+                  </div>
+                </div>
+                <div id="llm-consensus-body" class="text-xs text-slate-200 leading-relaxed space-y-2.5 font-sans">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Interactive Follow-up Bar -->
+              <div class="flex items-center gap-2 pt-1">
+                <select id="llm-followup-target" class="bg-[#060c18] border border-[#1e3256] rounded-lg px-2.5 py-2 text-xs text-slate-300 focus:outline-none focus:border-cyan-500">
+                  <option value="all">All Models</option>
+                  <option value="chatgpt">ChatGPT</option>
+                  <option value="claude">Claude</option>
+                  <option value="gemini">Gemini</option>
+                </select>
+                <input type="text" id="llm-followup-input" onkeydown="if(event.key==='Enter') sendLLMFollowUp();" placeholder="Add a message or ask follow-up..." class="flex-1 bg-[#060c18] border border-[#1e3256] rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                <button onclick="sendLLMFollowUp()" id="btn-llm-followup" class="px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg transition-colors flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN (Session Tools, Summary, Quick Prompts) -->
+          <div class="col-span-12 lg:col-span-4 flex flex-col gap-4">
+
+            <!-- Session Tools Card -->
+            <div class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] shadow-sm space-y-3">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Session Tools
+              </span>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div onclick="openSavedChatsModal()" class="p-3 rounded-lg bg-[#060c18] hover:bg-[#0c1830] border border-[#1b2c4c] flex flex-col justify-between cursor-pointer transition-all">
+                  <div class="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Saved Chats</span>
+                    <span>📁</span>
+                  </div>
+                  <div class="text-2xl font-bold text-white mt-2" id="llm-tool-saved-count">1</div>
+                  <div class="text-[10px] text-cyan-400 mt-1 flex items-center justify-between">
+                    <span>Manage saved</span>
+                    <span>›</span>
+                  </div>
+                </div>
+
+                <div onclick="openConnectedTabsModal()" class="p-3 rounded-lg bg-[#060c18] hover:bg-[#0c1830] border border-[#1b2c4c] flex flex-col justify-between cursor-pointer transition-all">
+                  <div class="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Connected Tabs</span>
+                    <span>🗂</span>
+                  </div>
+                  <div class="text-2xl font-bold text-cyan-300 mt-2" id="llm-tool-tabs-count">3</div>
+                  <div class="text-[10px] text-cyan-400 mt-1 flex items-center justify-between">
+                    <span>Inspect tabs</span>
+                    <span>›</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Session Summary Card -->
+            <div class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] shadow-sm space-y-2.5 text-xs">
+              <span class="font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Session Summary
+              </span>
+
+              <div class="space-y-2 pt-1 border-t border-[#142036]">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Topic:</span>
+                  <span id="llm-summary-topic" class="text-slate-200 text-right truncate max-w-[180px]">How can we make camera motion in 3D games...</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Participants:</span>
+                  <div class="flex gap-1.5 text-xs" id="llm-summary-participants">
+                    <span>🟢 ChatGPT</span>
+                    <span>🟠 Claude</span>
+                    <span>🟣 Gemini</span>
+                  </div>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Rounds:</span>
+                  <span id="llm-summary-rounds" class="text-cyan-300 font-mono">2 Rounds</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Elapsed:</span>
+                  <span id="llm-summary-elapsed" class="text-slate-300 font-mono">0m 00s</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Status:</span>
+                  <span id="llm-summary-status" class="text-emerald-400 font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ready
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Prompts Card -->
+            <div id="web-search-card" class="p-4 rounded-xl bg-[#0a1324] border border-[#1b2b48] shadow-sm space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-white flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  Quick Prompts
+                </span>
+                <span class="text-[10px] text-slate-500 font-mono">Click to load</span>
+              </div>
+
+              <div class="space-y-1.5 pt-1">
+                <button onclick="injectQuickPrompt('architectural')" class="w-full p-2.5 rounded-lg bg-[#060c18] hover:bg-[#0c1830] border border-[#1a2b47] text-left text-slate-300 hover:text-white transition-colors flex items-center justify-between">
+                  <span>⚖️ Compare architectural approaches</span>
+                  <span class="text-slate-500">›</span>
+                </button>
+                <button onclick="injectQuickPrompt('code_review')" class="w-full p-2.5 rounded-lg bg-[#060c18] hover:bg-[#0c1830] border border-[#1a2b47] text-left text-slate-300 hover:text-white transition-colors flex items-center justify-between">
+                  <span>🔍 Review quaternion slerp & concurrency</span>
+                  <span class="text-slate-500">›</span>
+                </button>
+                <button onclick="injectQuickPrompt('brainstorm')" class="w-full p-2.5 rounded-lg bg-[#060c18] hover:bg-[#0c1830] border border-[#1a2b47] text-left text-slate-300 hover:text-white transition-colors flex items-center justify-between">
+                  <span>💡 Brainstorm cinematic camera mechanics</span>
+                  <span class="text-slate-500">›</span>
+                </button>
+                <button onclick="injectQuickPrompt('debate')" class="w-full p-2.5 rounded-lg bg-[#060c18] hover:bg-[#0c1830] border border-[#1a2b47] text-left text-slate-300 hover:text-white transition-colors flex items-center justify-between">
+                  <span>⚔️ Debate: Spring physics vs Deterministic splines</span>
+                  <span class="text-slate-500">›</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- BOTTOM STATUS BAR                                         -->
+    <!-- ========================================================= -->
+    <footer class="h-8 border-t border-[#1a2845] px-4 flex items-center justify-between bg-[#081020] text-[11px] font-mono text-slate-400 shrink-0 select-none">
+      <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1.5" id="foot-git"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Git: Clean</span>
+        <span class="flex items-center gap-1.5" id="foot-verify"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> Verification: Passed (pytest -q)</span>
+        <span id="foot-turn">Turn: 1/3</span>
+        <span id="foot-elapsed">⏱ Elapsed: 0m 00s</span>
+      </div>
+      <div class="flex items-center gap-2 text-emerald-400 font-sans font-medium" id="foot-health">
+        <svg class="w-3.5 h-3.5 animate-pulse text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        All systems operational
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 3. MODAL: VIEW FULL DECISION (A4 FORMATLI POPUP)          -->
+  <!-- ========================================================= -->
+  <div id="modal-a4" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="a4-sheet bg-[#081020] border border-cyan-500/40 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="h-14 px-6 border-b border-[#1b2b48] flex items-center justify-between bg-[#060c18] shrink-0">
+        <div class="flex items-center gap-2.5 font-bold text-white text-sm">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          AI Bridge Karar Raporu (A4 Full Decision)
+        </div>
+        <button onclick="closeA4Modal()" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-800 text-slate-400 hover:text-white text-lg font-bold transition-colors">✕</button>
+      </div>
+
+      <!-- Modal Body (A4 Paper Aesthetic) -->
+      <div class="p-8 overflow-y-auto space-y-6 text-xs text-slate-300 font-sans leading-relaxed">
+
+        <!-- Report Meta Banner -->
+        <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 to-[#071328] border border-emerald-500/30 flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-emerald-300" id="a4-status">DURUM: READY FOR APPROVAL</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">
+              Run ID: <span class="font-mono text-cyan-300" id="a4-runid">20260920_170140</span> • 
+              Base: <span class="font-mono text-slate-300" id="a4-base">ac9f72a</span> • 
+              Branch: <span class="font-mono text-slate-300" id="a4-branch">ai-bridge/20260920_170140</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-mono text-slate-400" id="a4-date">2026-09-20 17:06 UTC</div>
+            <div class="text-[11px] text-emerald-400 font-bold" id="a4-verify-badge">Verification: PASSED (12/12)</div>
+          </div>
+        </div>
+
+        <!-- Section 1: Görev ve Özet -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 border-b border-[#1b2b48] pb-1">1. Task & Changes Made</h3>
+          <p class="text-slate-300 bg-[#050914] p-3.5 rounded-lg border border-[#142036] leading-relaxed" id="a4-task-desc">
+            Fix the bug where camera motion becomes jerky when switching between keyframes in MotionSmith. Preserve the existing architecture and design patterns. Focus on identifying the root cause, apply a minimal and safe fix, and make sure there are no regressions.
+          </p>
+        </div>
+
+        <!-- Section 2: Ajan Yürütme Detayları -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 border-b border-[#1b2b48] pb-1">2. Agent Execution Results</h3>
+          <div class="space-y-2">
+            <div class="p-3 rounded-lg bg-[#050914] border border-[#182844] flex items-center justify-between">
+              <div>
+                <span class="font-bold text-white">Codex (Developer):</span>
+                <span class="text-slate-400 ml-2" id="a4-codex-res">4 files updated, new interpolation algorithm applied.</span>
+              </div>
+              <span class="font-mono text-emerald-400">rc=0 (2m 14s)</span>
+            </div>
+            <div class="p-3 rounded-lg bg-[#050914] border border-[#182844] flex items-center justify-between">
+              <div>
+                <span class="font-bold text-white">Claude Code (Reviewer):</span>
+                <span class="text-emerald-400 ml-2" id="a4-claude-res">VERDICT: APPROVE (0 Blocker, 0 Major, 1 Minor)</span>
+              </div>
+              <span class="font-mono text-emerald-400">rc=0 (1m 32s)</span>
+            </div>
+            <div class="p-3 rounded-lg bg-[#050914] border border-[#182844] flex items-center justify-between">
+              <div>
+                <span class="font-bold text-white">Antigravity (Verifier & Fixer):</span>
+                <span class="text-slate-400 ml-2" id="a4-agy-res">done=true | verification=passed | permission_blocked=false</span>
+              </div>
+              <span class="font-mono text-cyan-400">rc=0 (0m 46s)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Değişen Dosyalar -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 border-b border-[#1b2b48] pb-1">3. Changed Files</h3>
+          <div class="font-mono text-[11px] bg-[#050914] p-3 rounded-lg border border-[#142036] space-y-1.5" id="a4-files-list">
+            <div class="text-emerald-400"><span class="w-6 inline-block font-bold">M</span> src/sequencer/camera_interpolator.py (+84, -31)</div>
+            <div class="text-emerald-400"><span class="w-6 inline-block font-bold">M</span> src/sequencer/timeline.py (+16, -10)</div>
+            <div class="text-cyan-400"><span class="w-6 inline-block font-bold">A</span> tests/test_camera_jitter.py (+28, -0)</div>
+            <div class="text-slate-400"><span class="w-6 inline-block font-bold">M</span> README.md (+0, -0)</div>
+          </div>
+        </div>
+
+        <!-- Section 4: Neden Bu Karar Verildi (Why This Decision Was Made) -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 border-b border-[#1b2b48] pb-1">4. Neden Bu Karar Verildi (Decision Rationale)</h3>
+          <div class="text-slate-300 text-xs bg-[#050914] p-3.5 rounded-lg border border-[#142036] leading-relaxed" id="a4-rationale">
+            All agents (Codex, Claude Reviewer, Antigravity) completed their steps successfully. Claude's architecture review found zero blocker and zero major issues. The independent test command (pytest -q) passed 12/12 tests and no security violation was detected.
+          </div>
+        </div>
+
+        <!-- Section 5: Süre Kırılımları (Durations Breakdown) -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 border-b border-[#1b2b48] pb-1">5. Durations Breakdown</h3>
+          <div class="grid grid-cols-5 gap-2 font-mono text-center text-xs">
+            <div class="p-2.5 rounded bg-[#050914] border border-[#182844]">
+              <div class="text-[10px] text-slate-400">Total</div>
+              <div class="font-bold text-cyan-300 mt-1" id="a4-dur-total">4m 32s</div>
+            </div>
+            <div class="p-2.5 rounded bg-[#050914] border border-[#182844]">
+              <div class="text-[10px] text-slate-400">Codex</div>
+              <div class="font-bold text-emerald-400 mt-1" id="a4-dur-codex">2m 14s</div>
+            </div>
+            <div class="p-2.5 rounded bg-[#050914] border border-[#182844]">
+              <div class="text-[10px] text-slate-400">Claude</div>
+              <div class="font-bold text-amber-400 mt-1" id="a4-dur-claude">1m 32s</div>
+            </div>
+            <div class="p-2.5 rounded bg-[#050914] border border-[#182844]">
+              <div class="text-[10px] text-slate-400">Antigravity</div>
+              <div class="font-bold text-cyan-400 mt-1" id="a4-dur-agy">0m 46s</div>
+            </div>
+            <div class="p-2.5 rounded bg-[#050914] border border-[#182844]">
+              <div class="text-[10px] text-slate-400">Verification</div>
+              <div class="font-bold text-purple-400 mt-1" id="a4-dur-verify">2.4s</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: Güvenlik Parmak İzi -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 border-b border-[#1b2b48] pb-1">6. Security & Fingerprint</h3>
+          <div class="text-slate-400 text-[11px] font-mono bg-[#050914] p-3 rounded-lg border border-[#142036]" id="a4-fingerprint">
+            Fingerprint Hash: d41d8cd98f00b204e9800998ecf8427e... (Matched, changes are safe on the isolated branch)
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer Action -->
+      <div class="h-16 px-6 border-t border-[#1b2b48] flex items-center justify-between bg-[#060c18] shrink-0">
+        <span class="text-[11px] text-slate-400 font-mono">Karar: <span class="text-emerald-400 font-bold" id="a4-footer-status">ready_for_approval</span></span>
+        <div class="flex gap-3">
+          <button onclick="closeA4Modal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium">Close (Esc)</button>
+          <button onclick="handleAccept(); closeA4Modal();" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-600/30">✓ Accept & Merge</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 4. MODAL: VIEW FILES DETAILS                              -->
+  <!-- ========================================================= -->
+  <div id="modal-files" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0a1324] border border-[#1e3256] rounded-xl w-full max-w-2xl flex flex-col shadow-2xl overflow-hidden">
+      <div class="h-12 px-5 border-b border-[#1b2b48] flex items-center justify-between bg-[#081020]">
+        <span class="font-bold text-xs text-white flex items-center gap-2">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Changed Files List
+        </span>
+        <button onclick="closeFilesModal()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+      <div class="p-5 font-mono text-xs space-y-2 max-h-96 overflow-y-auto" id="files-modal-list">
+        <!-- Populated by JavaScript -->
+      </div>
+      <div class="h-12 px-5 border-t border-[#1b2b48] flex items-center justify-end bg-[#081020]">
+        <button onclick="closeFilesModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">Close (Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 5. MODAL: PAIR BROWSER EXTENSION                          -->
+  <!-- ========================================================= -->
+  <div id="modal-pairing" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0a1324] border border-[#1e3256] rounded-xl w-full max-w-md flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
+      <div class="h-12 px-5 border-b border-[#1b2b48] flex items-center justify-between bg-[#081020]">
+        <span class="font-bold text-xs text-white flex items-center gap-2">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+          </svg>
+          Browser Extension Pairing
+        </span>
+        <button onclick="closePairingModal()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <div class="p-6 flex flex-col items-center text-center">
+        <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+          Open the <strong>AI Bridge Companion</strong> extension in Chrome or Edge and enter the 6-digit pairing code below:
+        </p>
+
+        <!-- 6-digit code box -->
+        <div class="bg-[#050914] border border-cyan-500/50 rounded-xl px-6 py-4 mb-3 shadow-lg shadow-cyan-500/10">
+          <div id="pairing-modal-code" class="text-3xl font-mono font-bold tracking-[0.3em] text-cyan-400 select-all">
+            ------
+          </div>
+        </div>
+
+        <!-- Timer & port status -->
+        <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-4">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Valid for: <strong id="pairing-timer" class="font-mono text-cyan-300">05:00</strong></span>
+          <span class="text-slate-600">•</span>
+          <span class="font-mono text-slate-500" id="pairing-port-info">127.0.0.1:45821</span>
+        </div>
+
+        <div class="text-[11px] text-slate-400 bg-[#081020] border border-[#1a2845] rounded-lg p-3 w-full text-left leading-relaxed">
+          <div class="font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
+            <span class="text-cyan-400">ℹ</span> Extension not installed yet?
+          </div>
+          <div>1. Open <code class="text-cyan-300">chrome://extensions</code> and enable <em>Developer mode</em>.</div>
+          <div>2. Click <em>Load unpacked</em> and select the <code class="text-cyan-300">browser-extension</code> folder.</div>
+        </div>
+      </div>
+
+  <!-- ========================================================= -->
+  <!-- 6. MODAL: SAVED CHATS LIST & MANAGER                      -->
+  <!-- ========================================================= -->
+  <div id="modal-saved-chats" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0a1324] border border-[#1e3256] rounded-xl w-full max-w-3xl flex flex-col shadow-2xl overflow-hidden animate-fadeIn max-h-[85vh]">
+      <div class="h-12 px-5 border-b border-[#1b2b48] flex items-center justify-between bg-[#081020] shrink-0">
+        <span class="font-bold text-xs text-white flex items-center gap-2">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+          Saved LLM Hub Chats
+        </span>
+        <button onclick="closeSavedChatsModal()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <div class="p-4 border-b border-[#142036] bg-[#070e1c] flex items-center justify-between gap-3">
+        <input type="text" id="saved-chats-search" oninput="filterSavedChats()" placeholder="Search by topic or model..." class="flex-1 bg-[#060c18] border border-[#1e3256] rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+        <span id="saved-chats-count-label" class="text-xs text-slate-400 font-mono">0 Chats</span>
+      </div>
+
+      <div class="p-4 space-y-2.5 overflow-y-auto flex-1" id="saved-chats-list">
+        <!-- Populated by JavaScript -->
+      </div>
+
+      <div class="h-12 px-5 border-t border-[#1b2b48] flex items-center justify-end bg-[#081020] shrink-0">
+        <button onclick="closeSavedChatsModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors">
+          Close (Esc)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 7. MODAL: CONNECTED TABS STATUS                           -->
+  <!-- ========================================================= -->
+  <div id="modal-connected-tabs" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0a1324] border border-[#1e3256] rounded-xl w-full max-w-xl flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
+      <div class="h-12 px-5 border-b border-[#1b2b48] flex items-center justify-between bg-[#081020] shrink-0">
+        <span class="font-bold text-xs text-white flex items-center gap-2">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+          Connected Browser Tabs
+        </span>
+        <button onclick="closeConnectedTabsModal()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <div class="p-5 space-y-3 text-xs">
+        <p class="text-slate-400 leading-relaxed text-[11px]">
+          AI Bridge uses the sessions in your open browser tabs (ChatGPT, Claude, Gemini) directly. The tabs just need to be open and signed in.
+        </p>
+
+        <div class="space-y-2 pt-1" id="connected-tabs-modal-list">
+          <!-- ChatGPT Item -->
+          <div class="p-3 rounded-lg bg-[#060c18] border border-[#1b2c4c] flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/></svg>
+              </div>
+              <div>
+                <div class="font-bold text-white">ChatGPT Web</div>
+                <div class="text-[10px] font-mono text-slate-400">https://chatgpt.com</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="modal-tab-stat-chatgpt" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Connected
+              </span>
+            </div>
+          </div>
+
+          <!-- Claude Item -->
+          <div class="p-3 rounded-lg bg-[#060c18] border border-[#1b2c4c] flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-amber-950 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                <span class="text-sm font-bold">✱</span>
+              </div>
+              <div>
+                <div class="font-bold text-white">Claude.ai Web</div>
+                <div class="text-[10px] font-mono text-slate-400">https://claude.ai</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="modal-tab-stat-claude" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Connected
+              </span>
+            </div>
+          </div>
+
+          <!-- Gemini Item -->
+          <div class="p-3 rounded-lg bg-[#060c18] border border-[#1b2c4c] flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-purple-950 border border-purple-500/40 flex items-center justify-center text-purple-400 shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9l-7 3 7 3 3 7 3-7 7-3-7-3-3-7z"/></svg>
+              </div>
+              <div>
+                <div class="font-bold text-white">Gemini Web</div>
+                <div class="text-[10px] font-mono text-slate-400">https://gemini.google.com</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="modal-tab-stat-gemini" class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Connected
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="h-14 px-5 border-t border-[#1b2b48] flex items-center justify-between bg-[#081020]">
+        <button onclick="refreshTabDetection()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Re-detect
+        </button>
+        <button onclick="closeConnectedTabsModal()" class="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors">
+          Close (Esc)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- JavaScript Controller -->
+  <script src="app.js"></script>
+</body>
+</html>

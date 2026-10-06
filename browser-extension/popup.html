@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Bridge Companion</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3l9 16H3l9-16z"/>
+          </svg>
+        </div>
+        <span class="brand-name">AI Bridge</span>
+      </div>
+      <div id="connection-badge" class="badge badge-disconnected">
+        <span class="dot"></span>
+        <span id="badge-text">Disconnected</span>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-body">
+
+      <!-- View 1: Unpaired State -->
+      <section id="view-unpaired" class="view">
+        <div class="card info-card">
+          <div class="card-title">Pair with AI Bridge Desktop</div>
+          <p class="card-desc">Open AI Bridge Desktop, click <strong>Pair Extension</strong> in Chat Context, and enter the 6-digit code.</p>
+        </div>
+
+        <div class="pairing-form">
+          <label for="pairing-code" class="form-label">Pairing Code</label>
+          <input type="text" id="pairing-code" maxlength="6" placeholder="123456" autocomplete="off" spellcheck="false">
+          
+          <div class="port-row">
+            <label for="server-port" class="port-label">Port:</label>
+            <input type="number" id="server-port" value="45821" min="1024" max="65535">
+          </div>
+
+          <button id="btn-pair" class="btn btn-primary">Connect to Desktop</button>
+        </div>
+        <div id="pair-error" class="error-text hidden"></div>
+      </section>
+
+      <!-- View 2: Paired & ChatGPT Tab Active -->
+      <section id="view-chatgpt" class="view hidden">
+        <div class="tab-indicator">
+          <span class="tab-label">Active Tab:</span>
+          <span class="tab-value provider-chatgpt">ChatGPT Web</span>
+        </div>
+
+        <div id="chatgpt-status-card" class="card detected-card">
+          <div id="chatgpt-detected-content">
+            <div class="conv-title" id="chatgpt-conv-title">Conversation Title</div>
+            <div class="conv-stats" id="chatgpt-conv-stats">0 messages • 0 chars</div>
+            <div id="chatgpt-truncation-note" class="truncation-note hidden">Context truncated to 250k char ceiling</div>
+          </div>
+          <div id="chatgpt-undetected-content" class="hidden">
+            <div class="warning-text">Conversation could not be detected. The website layout may have changed.</div>
+          </div>
+        </div>
+
+        <button id="btn-send-chat" class="btn btn-action">Send Current Chat to AI Bridge</button>
+        <div id="send-status" class="status-msg hidden"></div>
+
+        <!-- Secondary LLM Tabs Detection List -->
+        <div class="secondary-tabs">
+          <div class="sec-title">Other LLM Tabs</div>
+          <div class="sec-row">
+            <span class="sec-name">Claude:</span>
+            <span id="tab-stat-claude" class="sec-status">Not detected</span>
+          </div>
+          <div class="sec-row">
+            <span class="sec-name">Gemini:</span>
+            <span id="tab-stat-gemini" class="sec-status">Not detected</span>
+          </div>
+        </div>
+
+        <div class="footer-actions">
+          <button id="btn-unpair-1" class="btn-link">Unpair Extension</button>
+        </div>
+      </section>
+
+      <!-- View 3: Paired but Unsupported Tab -->
+      <section id="view-unsupported" class="view hidden">
+        <div class="card info-card">
+          <div class="card-title">Unsupported Tab</div>
+          <p class="card-desc">Navigate to <a href="https://chatgpt.com" target="_blank" class="link">chatgpt.com</a> to extract discussions directly into AI Bridge.</p>
+        </div>
+
+        <div class="secondary-tabs">
+          <div class="sec-title">Detected LLM Tabs</div>
+          <div class="sec-row">
+            <span class="sec-name">ChatGPT:</span>
+            <span id="tab-stat-chatgpt-alt" class="sec-status">Not detected</span>
+          </div>
+          <div class="sec-row">
+            <span class="sec-name">Claude:</span>
+            <span id="tab-stat-claude-alt" class="sec-status">Not detected</span>
+          </div>
+          <div class="sec-row">
+            <span class="sec-name">Gemini:</span>
+            <span id="tab-stat-gemini-alt" class="sec-status">Not detected</span>
+          </div>
+        </div>
+
+        <div class="footer-actions">
+          <button id="btn-unpair-2" class="btn-link">Unpair Extension</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="content/common.js"></script>
+  <script src="content/chatgpt.js"></script>
+  <script src="content/claude.js"></script>
+  <script src="content/gemini.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
