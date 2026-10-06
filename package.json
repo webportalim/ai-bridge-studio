@@ -1,7 +1,7 @@
 {
-  "name": "ai-bridge-desktop",
+  "name": "ai-bridge-studio",
   "version": "1.0.0",
-  "description": "AI Bridge Desktop V1 — Three AIs. One workflow. Better results.",
+  "description": "AI Bridge Studio — Three AIs. One workflow. Better results.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

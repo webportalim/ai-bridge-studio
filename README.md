@@ -1,5 +1,5 @@
-# AI Bridge Desktop V1
-
+# AI Bridge Studio
+ 
 > **Three AIs. One workflow. Better results.**  
 > Orchestrate OpenAI Codex, Anthropic Claude Code, and Google DeepMind Antigravity seamlessly in a production-grade desktop interface.
 
@@ -7,13 +7,13 @@
 
 ## 📸 Overview & Design System
 
-AI Bridge Desktop V1 is a 16:9 desktop-first Electron application built with a high-contrast dark navy design system, directly matching the approved production mockups (`masaüstü görünümü.png` and `LLM Hub Sayfası.png`).
+AI Bridge Studio is a 16:9 desktop-first Electron application built with a high-contrast dark navy design system, directly matching the approved production mockups.
 
 ```
-AI Bridge Desktop V1
+AI Bridge Studio
 │
 ├── Left Sidebar
-│   ├── Logo & Brand (▲ AI Bridge v1.0.0)
+│   ├── Logo & Brand (▲ AI Bridge Studio v1.0.0)
 │   ├── Run Screen (Active Pipeline & Execution)
 │   ├── Projects (Managed Git Repositories)
 │   ├── History (Historical Runs & Decisions)
