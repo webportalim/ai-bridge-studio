@@ -249,9 +249,9 @@
               Task <span class="sub">What should the agents do?</span>
             </div>
             <div class="flex items-center gap-2.5">
-              <button type="button" onclick="selectTaskFiles()" id="btn-attach-file" class="px-2.5 py-1 text-[11px] font-medium rounded-md bg-[#0e1c38] hover:bg-[#162a52] text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 hover:border-cyan-400/60 flex items-center gap-1.5 transition-all shadow-sm" title="Görev için referans veya hedef dosya seçin">
+              <button type="button" onclick="selectTaskFiles()" id="btn-attach-file" class="px-2.5 py-1 text-[11px] font-medium rounded-md bg-[#0e1c38] hover:bg-[#162a52] text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 hover:border-cyan-400/60 flex items-center gap-1.5 transition-all shadow-sm" title="Attach reference or target file(s) to task">
                 <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                <span>Dosya Seç</span>
+                <span>Attach File</span>
               </button>
               <span class="text-[11px] text-slate-500 font-mono" id="char-count">0/4000</span>
             </div>
@@ -262,9 +262,9 @@
             <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
               <span class="flex items-center gap-1.5 font-medium text-slate-300">
                 <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Seçilen Hedef / Referans Dosyalar (<span id="attached-files-count">0</span>)
+                Attached Target / Reference Files (<span id="attached-files-count">0</span>)
               </span>
-              <button type="button" onclick="clearAllAttachedFiles()" class="text-[10px] text-slate-500 hover:text-rose-400 hover:underline">Tümünü Kaldır</button>
+              <button type="button" onclick="clearAllAttachedFiles()" class="text-[10px] text-slate-500 hover:text-rose-400 hover:underline">Clear All</button>
             </div>
             <div id="attached-files-list" class="flex flex-wrap gap-1.5 pt-0.5"></div>
           </div>

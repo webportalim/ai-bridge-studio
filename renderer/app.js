@@ -2074,11 +2074,11 @@ async function selectTaskFiles() {
 
     renderAttachedFiles();
     if (addedCount > 0) {
-      showToast('info', `${addedCount} dosya eklendi.`);
+      showToast('info', `${addedCount} file(s) attached.`);
     }
   } catch (err) {
     console.error('File selection error:', err);
-    showToast('error', 'Dosya seçilirken hata: ' + (err.message || err));
+    showToast('error', 'Failed to select file(s): ' + (err.message || err));
   }
 }
 
@@ -2092,7 +2092,7 @@ function removeAttachedFile(idx) {
 function clearAllAttachedFiles() {
   state.attachedFiles = [];
   renderAttachedFiles();
-  showToast('info', 'Seçilen dosyalar temizlendi.');
+  showToast('info', 'Attached files cleared.');
 }
 
 function renderAttachedFiles() {
@@ -2125,7 +2125,7 @@ function renderAttachedFiles() {
         <span class="${isRepoFile ? 'text-cyan-400' : 'text-amber-400'} text-[11px]">${isRepoFile ? '📄' : '📎'}</span>
         <span class="max-w-[220px] truncate select-all" title="${escapeHtml(file.filePath)}">${escapeHtml(displayName)}</span>
         ${sizeStr ? `<span class="text-[10px] text-slate-400 font-sans">(${sizeStr})</span>` : ''}
-        <button type="button" onclick="removeAttachedFile(${idx})" class="w-4 h-4 ml-0.5 rounded flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer" title="Kaldır">
+        <button type="button" onclick="removeAttachedFile(${idx})" class="w-4 h-4 ml-0.5 rounded flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer" title="Remove file">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -2189,7 +2189,7 @@ function setupTaskDragAndDrop() {
 
     if (addedCount > 0) {
       renderAttachedFiles();
-      showToast('info', `${addedCount} dosya göreve eklendi.`);
+      showToast('info', `${addedCount} file(s) attached to task.`);
     }
   });
 }

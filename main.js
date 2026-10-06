@@ -1017,27 +1017,27 @@ safeIpcHandle('bridge:run', async (event, options) => {
 
   let finalTask = task;
   if (Array.isArray(attachedFiles) && attachedFiles.length > 0) {
-    let filesContext = '\n\n[KULLANICININ SEÇTİĞİ VE İŞLEM YAPILMASINI İSTEDİĞİ HEDEF / REFERANS DOSYALAR]:\n';
+    let filesContext = '\n\n[USER ATTACHED TARGET / REFERENCE FILES]:\n';
     for (const f of attachedFiles) {
       const p = f.filePath || f.path;
       if (!p) continue;
-      const targetRef = f.relativePath ? `${f.relativePath} (proje içi)` : `${p} (harici dosya)`;
-      filesContext += `\n● Dosya: ${targetRef}\n`;
+      const targetRef = f.relativePath ? `${f.relativePath} (in project)` : `${p} (external file)`;
+      filesContext += `\n● File: ${targetRef}\n`;
       try {
         if (fs.existsSync(p)) {
           const stat = fs.statSync(p);
           if (stat.size <= 80 * 1024) {
             const content = fs.readFileSync(p, 'utf8');
-            filesContext += `--- İÇERİK BAŞLANGICI (${f.name}) ---\n${content}\n--- İÇERİK BİTİŞİ (${f.name}) ---\n`;
+            filesContext += `--- FILE CONTENT START (${f.name}) ---\n${content}\n--- FILE CONTENT END (${f.name}) ---\n`;
           } else {
-            filesContext += `(Dosya boyutu ${Math.round(stat.size / 1024)} KB - büyük dosya, gerekirse doğrudan repodan/dosya sisteminden okuyun)\n`;
+            filesContext += `(File size: ${Math.round(stat.size / 1024)} KB - large file, read directly from repo/filesystem if needed)\n`;
           }
         }
       } catch (err) {
-        filesContext += `(Dosya okuma bilgisi: ${err.message})\n`;
+        filesContext += `(File read error: ${err.message})\n`;
       }
     }
-    filesContext += '\nTALİMAT: Lütfen görevi yukarıda belirtilen dosya(lar) üzerinde uygulayın veya bu dosyalardaki içeriği/talimatları öncelikli olarak dikkate alın.\n';
+    filesContext += '\nINSTRUCTION: Please perform the requested task on the file(s) specified above or prioritize their contents.\n';
     finalTask = finalTask + filesContext;
   }
 
