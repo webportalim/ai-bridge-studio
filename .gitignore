@@ -2,3 +2,11 @@ node_modules/
 .userData/
 _backup_before_*
 *.log
+*.png
+*.bak
+*.crx
+*.pem
+main-1.js
+desktop_preview.html
+ai_bridge_canonical_backup.sh
+.claude/
