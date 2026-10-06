@@ -1,211 +1,247 @@
 # AI Bridge Studio
- 
-> **Three AIs. One workflow. Better results.**  
-> Orchestrate OpenAI Codex, Anthropic Claude Code, and Google DeepMind Antigravity seamlessly in a production-grade desktop interface.
 
----
+> **Three AIs. One workflow. Better results.**
+>
+> A local desktop workspace for orchestrating coding agents and collaborating across ChatGPT, Claude, and Gemini web sessions.
 
-## 📸 Overview & Screenshots
-
-AI Bridge Studio is a 16:9 desktop-first Electron application built with a high-contrast dark navy design system for seamless multi-agent orchestration and web session collaboration.
-
-### 🖥️ Multi-Agent Run Dashboard
 ![AI Bridge Studio Dashboard](docs/screenshots/ai-bridge-dashboard.png)
 
-### 🌐 LLM Hub Web Orchestrator
+## What it does
+
+AI Bridge Studio combines two workflows in one Electron desktop app:
+
+- **Coding-agent orchestration** — coordinate OpenAI Codex CLI, Anthropic Claude Code, and Google Antigravity through a guarded review/verification pipeline.
+- **LLM Hub** — collaborate across your existing ChatGPT, Claude, and Gemini browser sessions through the included Chrome/Edge companion extension.
+
+The coding pipeline keeps the human in control of the final decision: changes are reviewed and verified before **Accept** or **Rollback** becomes the final action.
+
+## LLM Hub
+
 ![AI Bridge Studio LLM Hub](docs/screenshots/ai-bridge-llm-hub.png)
 
+LLM Hub can run structured multi-model discussions without requiring API keys or per-call API billing. It uses your existing logged-in browser sessions and remains subject to each provider's web-plan usage limits and terms.
+
+Available discussion modes:
+
+- **Collaborative** — constructive synthesis across models.
+- **Debate** — critical evaluation, edge cases, and trade-offs.
+- **Brainstorm** — non-overlapping creative ideas.
+- **Code Review** — implementation-focused technical critique.
+
+A typical session flows like this:
+
+```text
+Topic / Task
+    ↓
+ChatGPT Web
+    ↓
+Claude Web
+    ↓
+Gemini Web
+    ↓
+Additional rounds (optional)
+    ↓
+Final Consensus
 ```
+
+LLM Hub also supports provider detection, follow-up questions, saved chats, Markdown/JSON export, connected-tab inspection, and transferring a synthesized result into the coding Run screen.
+
+## Architecture
+
+```text
 AI Bridge Studio
 │
-├── Left Sidebar
-│   ├── Logo & Brand (▲ AI Bridge Studio v1.0.0)
-│   ├── Run Screen (Active Pipeline & Execution)
-│   ├── Projects (Managed Git Repositories)
-│   ├── History (Historical Runs & Decisions)
-│   ├── Divider
-│   ├── LLM Hub (New — Web Sessions, Multi-LLM Chat, Session Tools)
-│   ├── Divider
-│   ├── Settings (System Diagnostics & Timeouts)
-│   └── Three AIs Branding Card
+├── Coding workflow
+│   └── Electron UI
+│       └── ai_bridge.sh
+│           ├── Codex CLI          → Developer
+│           ├── Claude Code CLI    → Read-only reviewer
+│           └── Antigravity CLI    → Verifier / fixer
 │
-├── Top Header
-│   ├── Tagline ("Orchestrate Codex, Claude, and Antigravity")
-│   ├── Status Indicator (● Ready / ● Running)
-│   ├── Demo Mode Toggle (Interactive Preview Simulation)
-│   ├── Real-time Clock
-│   └── Window Controls (Minimize, Maximize, Close)
-│
-├── Run Screen (Main 16:9 Grid)
-│   ├── LEFT COLUMN (8/12)
-│   │   ├── Project Selection (Input, Browse, Active Branch)
-│   │   ├── Task Prompt & Controls (Max Turns, Agents, Auto Approve, Verify Cmd, Run/Stop)
-│   │   ├── Pipeline Visualizer (Codex, Claude Reviewer, Antigravity status cards)
-│   │   └── Live Log Console (NDJSON formatted stream, Clear, Open in Editor)
-│   │
-│   └── RIGHT COLUMN (4/12)
-│       ├── Chat Context (ChatGPT Web connection, message & char count, Import/Refresh)
-│       ├── Change Overview (Files Changed, Lines Added, Lines Removed, Warnings/Findings)
-│       │   └── Tests Progress, Review Findings, Risk Level, Agent Durations, Main Changes
-│       └── Final Decision Banner (Ready for Approval, Blocked, Needs Verification, Accepted, Rolled Back)
-│           ├── Status Grid (Claude Verdict, AGY Done, Verification, Permissions, Duration)
-│           ├── View Full Decision (A4 Paper Modal)
-│           ├── Open Log Button
-│           ├── Accept Changes Button (Merge & Commit)
-│           └── Rollback Button (Reset & Clean)
-│
-├── Secondary Views
-│   ├── Projects: Manage local git repos and switch active projects
-│   ├── History: Run history table with direct A4 report access
-│   ├── Settings: CLI Doctor diagnostics (`git`, `codex`, `claude`, `agy`, `jq`) & timeouts
-│   └── LLM Hub: Multi-LLM collaboration showcase (ChatGPT, Claude, Gemini)
-│
-└── Modals
-    ├── View Full Decision (A4 printable paper report aesthetic)
-    └── View Files (Detailed diff file list with additions/deletions)
+└── LLM Hub
+    └── Electron localhost bridge (127.0.0.1)
+        └── Chrome / Edge extension
+            ├── ChatGPT Web
+            ├── Claude Web
+            └── Gemini Web
 ```
 
----
+The Electron main process consumes the backend's NDJSON event stream and forwards normalized events to the renderer over IPC. The browser companion communicates only through a localhost bridge and does not read browser cookies or authentication tokens.
 
-## 🚀 Quick Start
+## Requirements
 
-### 1. Requirements
-- **Node.js** >= 18.0.0
-- **Git for Windows** (with Git Bash installed at standard path `C:\Program Files\Git\bin\bash.exe`)
-- **CLI Tools** (optional for live execution, verified via Doctor):
+- **Windows** (current supported desktop target)
+- **Node.js 18+**
+- **Git for Windows** with Git Bash
+- Optional coding-agent CLIs for live Run execution:
   - `git`
-  - `codex` (OpenAI Codex CLI)
-  - `claude` (Anthropic Claude Code)
-  - `agy` (Google Antigravity)
-  - `jq` (JSON processor)
+  - `codex`
+  - `claude`
+  - `agy`
+  - `jq`
+- **Chrome or Edge** for LLM Hub browser orchestration
 
-### 2. Installation
+You can still inspect the UI and use Demo Mode without configuring all coding CLIs.
+
+## Quick start
+
+Clone the repository and install dependencies:
+
 ```bash
-# In the AI-Bridge directory:
+git clone https://github.com/webportalim/ai-bridge-studio.git
+cd ai-bridge-studio
 npm install
 ```
 
-### 3. Launching the Desktop Application
-On Windows, you can launch using any of the following methods:
+Launch the desktop app:
 
-- **Method A (Easiest)**: Double-click `start.bat` in the project root.
-- **Method B (PowerShell)**: Run `npm.cmd start` or `npx.cmd electron .` (bypasses PowerShell `.ps1` ExecutionPolicy restrictions).
-- **Method C (Command Prompt / Git Bash)**: Run `npm start`.
-
----
-
-## 🎮 Interactive Demo Mode
-
-The application includes a built-in **Demo Mode** toggle at the top header (`Demo: ON/OFF`):
-- When enabled, clicking **Run Bridge** executes a realistic animated multi-agent pipeline simulation.
-- Visualizes step-by-step agent execution, live terminal logs, review findings, test passing, and dynamic decision banners.
-- Allows demonstrating and testing **Accept Changes**, **Rollback**, and **View Full Decision (A4)** without external API quotas.
-
----
-
-## 🛡 Backend Integration Architecture
-
-The Electron Main process (`main.js`) connects to the hardened canonical `ai_bridge.sh` backend via Git Bash child process spawning with `--json-events`:
-
-- **Stdout NDJSON Streaming**: Output is buffered line-by-line and parsed as JSON before being securely passed to the renderer via IPC `bridge:event`.
-- **Signal Handling & Process Tree Cleanup**: When **Stop** is clicked or the app is closed, Windows process trees are terminated cleanly (`SIGINT` -> `taskkill /t /f`).
-- **Safety Gates**:
-  - `accept` is strictly guarded by backend verification state.
-  - `rollback` preserves clean working trees and cleans temporary branches safely.
-  - No commits metric is shown during an active run (only Warnings and Review Findings).
-
----
-
-## 🤖 LLM Hub Web Orchestration V1
-
-AI Bridge Desktop V1 includes a **multi-LLM web orchestration engine** connecting your active Chrome/Edge browser sessions without API keys, token billing, or external quotas:
-
-```
-User Topic / Task
-       ↓
-ChatGPT Web (Proposes Initial Analysis & Core Architecture)
-       ↓
-Claude Web (Critiques, Refines & Extends Insights)
-       ↓
-Gemini Web (Compares Perspectives & Synthesizes Next Steps)
-       ↓
-Round 2... (Iterative Deep-Dive)
-       ↓
-Final Consensus (Core Consensus, Disagreements, Recommendation & Caveats)
+```bash
+npm start
 ```
 
-### Key Features:
-- **Zero API Keys & Zero Quota Footprint**: Uses your existing logged-in browser web sessions in ChatGPT, Claude, and Gemini.
-- **4 Specialized Conversation Modes**:
-  - `Collaborative`: Constructive synthesis building cohesively upon prior contributions.
-  - `Debate`: Critical evaluation identifying edge-case failures, hidden assumptions, and trade-offs.
-  - `Brainstorm`: Unconventional, creative, non-overlapping concept generation.
-  - `Code Review`: Technical implementation critique focusing on correctness, race conditions, and performance.
-- **Tab Locking & Detection**: Verifies that all selected models have active, detected browser tabs before starting; produces clear error alerts if a tab is missing.
-- **Dedicated Consensus Card**: Synthesizes a 4-part consensus (Core Consensus, Key Disagreements & Trade-offs, Recommended Approach, Important Caveats & Action Items).
-- **Interactive Follow-ups**: Ask follow-up questions targeting all models or a specific provider.
-- **Saved Chats Storage**: Locally stores completed sessions in `userData/saved_chats/` with search, view, Markdown/JSON export, and deletion.
-- **Connected Tabs Modal**: Real-time status inspector for ChatGPT, Claude, and Gemini browser tabs.
-- **One-Click Task Transfer**: Transfer synthesized consensus directly into the Run screen task input.
+On Windows you can also double-click `start.bat`.
 
----
+If PowerShell blocks an npm `.ps1` shim, use:
 
-## 🌐 Browser Companion Extension (Chrome / Edge)
+```powershell
+npm.cmd start
+```
 
-AI Bridge includes a Manifest V3 browser companion in [`browser-extension/`](file:///f:/AI-Bridge/browser-extension/):
+## Browser companion extension
 
-### Key Capabilities:
-- **Localhost HTTP Bridge**: Bound strictly to `127.0.0.1:45821` (never `0.0.0.0`).
-- **One-Time Pairing Security**: Desktop generates an ephemeral 6-digit code with 5-minute TTL, exchanging a 64-char crypto token.
-- **Zero API Credentials**: No session cookies, tokens, or auth headers are accessed or stored.
-- **Semantic DOM Adapters**: Full automation adapters for ChatGPT, Claude, and Gemini with streaming detection, text stability polling, and stop generation controls.
-- **Native `--context-file` Feeding**: When active context is imported, `main.js` saves a structured markdown document into Electron `userData/context/` and supplies `--context-file` to `ai_bridge.sh`.
+The Manifest V3 companion extension lives in [browser-extension/](browser-extension/).
 
-### Installation:
+To install it locally:
+
 1. Open `chrome://extensions` or `edge://extensions`.
 2. Enable **Developer mode**.
-3. Click **Load unpacked** and select `F:\AI-Bridge\browser-extension`.
-4. Click **Pair Extension** in AI Bridge Desktop to generate the pairing code, and connect from the extension popup.
+3. Choose **Load unpacked**.
+4. Select the repository's `browser-extension` folder.
+5. Start AI Bridge Studio and use **Pair Extension**.
+6. Enter the generated one-time pairing code in the extension popup.
 
----
+The desktop bridge binds to `127.0.0.1:45821`. Pairing uses a short-lived one-time code which is exchanged for a locally stored random token.
 
-## 📂 Project Structure
+### Browser privacy model
 
+The extension is designed to automate only the supported LLM pages and exchange normalized conversation content with the local desktop app. It does **not** intentionally read or store session cookies, browser auth headers, or account passwords.
+
+Because ChatGPT, Claude, and Gemini can change their web DOM at any time, browser adapters may occasionally require updates.
+
+## Coding-agent Run workflow
+
+The Run screen launches the canonical `ai_bridge.sh` backend with machine-readable NDJSON events.
+
+Key safeguards include:
+
+- read-only Claude Code review stage
+- verifier/fixer stage after development
+- explicit verification command support
+- run state persisted under Git metadata
+- guarded Accept / Rollback actions
+- process-tree cleanup on Stop
+- project fingerprint checks before destructive decisions
+- human final approval
+
+The backend can also be used directly from Git Bash. Run its built-in help for the current CLI contract:
+
+```bash
+./ai_bridge.sh --help
 ```
-F:\AI-Bridge\
-├── ai_bridge.sh                 # Hardened canonical backend orchestrator (100% frozen)
-├── package.json                 # Electron dependencies & scripts
-├── main.js                      # Electron main process (HTTP bridge server, bash spawn, LLM Hub IPC)
-├── preload.js                   # Secure contextBridge API (Run operations + LLM Hub APIs)
+
+## Demo Mode
+
+The desktop app includes a Demo Mode for exploring the interface without spending model usage or modifying a real project. It simulates the pipeline, logs, findings, and decision states.
+
+Demo output is isolated from real LLM Hub sessions and should not be treated as model-generated production output.
+
+## Testing
+
+Install dependencies first, then run the desktop/JavaScript test suites:
+
+```bash
+npm test
+```
+
+Additional commands:
+
+```bash
+npm run test:node
+npm run test:electron
+```
+
+The shell backend regression suite can be run from Git Bash:
+
+```bash
+npm run test:backend
+```
+
+To run the backend and desktop suites together in an environment where `bash` is available on `PATH`:
+
+```bash
+npm run test:all
+```
+
+The repository includes dedicated tests for the backend, browser bridge, frontend integration, file attachments, Electron launch, and LLM Hub orchestration.
+
+## Project structure
+
+```text
+ai-bridge-studio/
+├── ai_bridge.sh                  # Coding-agent backend orchestrator
+├── main.js                       # Electron main process + localhost bridge
+├── preload.js                    # Secure contextBridge API
+├── package.json
+├── start.bat
+│
 ├── renderer/
-│   ├── index.html               # 16:9 desktop layout matching masaüstü görünümü.png & LLM Hub
-│   ├── styles.css               # Dark navy design system, glowing borders, A4 report styles
-│   ├── app.js                   # Reactive UI controller, event dispatcher, LLM Hub controller & demo mode
-│   └── tailwind.min.js          # Offline Tailwind CSS engine
-├── browser-extension/           # Chrome / Edge Manifest V3 companion extension
-│   ├── manifest.json            # MV3 configuration with minimum permissions
-│   ├── background.js            # Background service worker & LLMHubOrchestrator
-│   ├── popup.html / .js / .css  # Extension popup matching AI Bridge dark aesthetic
+│   ├── index.html
+│   ├── styles.css
+│   ├── app.js
+│   └── tailwind.min.js
+│
+├── browser-extension/
+│   ├── manifest.json
+│   ├── background.js
+│   ├── popup.html
+│   ├── popup.js
+│   ├── popup.css
 │   ├── content/
-│   │   ├── common.js            # Shared DOM sanitization, code preserver & 250k truncation
-│   │   ├── templates.js         # Multi-mode prompt template & consensus synthesis engine
-│   │   ├── chatgpt.js           # Semantic ChatGPT extractor & automation adapter
-│   │   ├── claude.js            # Semantic Claude extractor & automation adapter
-│   │   └── gemini.js            # Semantic Gemini extractor & automation adapter
-│   ├── icons/                   # Standard 16, 48, 128 px PNG icons
-│   └── README.md                # Extension installation & developer guide
+│   │   ├── common.js
+│   │   ├── templates.js
+│   │   ├── chatgpt.js
+│   │   ├── claude.js
+│   │   └── gemini.js
+│   └── icons/
+│
 ├── docs/
-│   └── GUI_BACKEND_PROTOCOL.md  # NDJSON event specification & IPC schema
+│   ├── GUI_BACKEND_PROTOCOL.md
+│   └── screenshots/
+│
 └── tests/
-    ├── test_ai_bridge.sh        # 37/37 automated backend regression test suite
-    ├── test_browser_bridge.js   # 52/52 automated browser extension & context test suite
-    ├── test_frontend_audit.js   # 5/5 Electron frontend integration test suite
-    ├── test_llm_orchestration.js# 63/63 LLM Hub orchestration & storage test suite
-    └── fixtures/                # Sanitized HTML DOM test fixtures
+    ├── test_ai_bridge.sh
+    ├── test_attached_files.js
+    ├── test_browser_bridge.js
+    ├── test_electron_launch.js
+    ├── test_frontend_audit.js
+    ├── test_llm_orchestration.js
+    └── fixtures/
 ```
 
----
+## Security notes
 
-## 📄 License
-MIT
+- The browser bridge listens on loopback (`127.0.0.1`), not all network interfaces.
+- Pairing codes are ephemeral and single-use.
+- The companion extension does not require LLM API keys.
+- Coding-agent permissions are intentionally separated by role.
+- Accept/Rollback are backend-controlled operations rather than arbitrary renderer commands.
 
+If you discover a security-sensitive issue, avoid posting secrets, session data, or credentials in a public issue.
+
+## Status
+
+AI Bridge Studio is under active development. Web-provider automation depends on external page structure, so compatibility can change when providers update their interfaces.
+
+## License
+
+Released under the [MIT License](LICENSE).
