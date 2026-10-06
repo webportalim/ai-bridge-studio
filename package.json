@@ -5,18 +5,37 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"OK\""
+    "test": "npm run test:node && npm run test:electron",
+    "test:node": "node tests/test_attached_files.js && node tests/test_llm_orchestration.js",
+    "test:electron": "electron tests/test_browser_bridge.js && electron tests/test_frontend_audit.js && electron tests/test_electron_launch.js",
+    "test:backend": "bash tests/test_ai_bridge.sh",
+    "test:all": "npm run test:backend && npm test"
   },
   "keywords": [
     "ai-bridge",
+    "ai-agents",
+    "llm",
     "codex",
-    "claude",
+    "claude-code",
     "antigravity",
-    "orchestrator",
-    "electron"
+    "multi-agent",
+    "orchestration",
+    "electron",
+    "developer-tools"
   ],
-  "author": "",
+  "author": "webportalim",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webportalim/ai-bridge-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/webportalim/ai-bridge-studio/issues"
+  },
+  "homepage": "https://github.com/webportalim/ai-bridge-studio#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "devDependencies": {
     "electron": "^31.0.0"
   }
