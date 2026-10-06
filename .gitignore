@@ -3,6 +3,8 @@ node_modules/
 _backup_before_*
 *.log
 *.png
+!browser-extension/icons/*.png
+!docs/screenshots/*.png
 *.bak
 *.crx
 *.pem

@@ -5,9 +5,15 @@
 
 ---
 
-## 📸 Overview & Design System
+## 📸 Overview & Screenshots
 
-AI Bridge Studio is a 16:9 desktop-first Electron application built with a high-contrast dark navy design system, directly matching the approved production mockups.
+AI Bridge Studio is a 16:9 desktop-first Electron application built with a high-contrast dark navy design system for seamless multi-agent orchestration and web session collaboration.
+
+### 🖥️ Multi-Agent Run Dashboard
+![AI Bridge Studio Dashboard](docs/screenshots/ai-bridge-dashboard.png)
+
+### 🌐 LLM Hub Web Orchestrator
+![AI Bridge Studio LLM Hub](docs/screenshots/ai-bridge-llm-hub.png)
 
 ```
 AI Bridge Studio
