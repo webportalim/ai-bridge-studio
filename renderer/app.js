@@ -1203,24 +1203,157 @@ async function openLogInEditor() {
 // 10. MODAL: FULL DECISION A4 & FILES
 // ==========================================================================
 
-function openA4Modal() {
+async function openA4Modal(runIdOverride) {
   const modal = document.getElementById('modal-a4');
   if (!modal) return;
 
-  document.getElementById('a4-status').innerText = `DURUM: ${state.currentDecision.toUpperCase()}`;
-  document.getElementById('a4-runid').innerText = state.activeRunId;
-  document.getElementById('a4-branch').innerText = state.activeBranch;
-  document.getElementById('a4-footer-status').innerText = state.currentDecision;
+  const projectInput = document.getElementById('project-input');
+  const projectPath = projectInput ? projectInput.value.trim() : '';
+  const runId = runIdOverride || state.activeRunId;
 
-  const taskText = document.getElementById('task-text').value;
-  if (taskText) document.getElementById('a4-task-desc').innerText = taskText;
+  let report = null;
+  if (bridge && (bridge.getReport || bridge.report)) {
+    try {
+      const fn = bridge.getReport || bridge.report;
+      const res = await fn(projectPath, runId);
+      if (res && res.success && res.report) {
+        report = res.report;
+      }
+    } catch (_) {}
+  }
 
-  // Durations
-  document.getElementById('a4-dur-total').innerText = formatDuration(state.elapsedSeconds || 272);
-  document.getElementById('a4-dur-codex').innerText = formatDuration(state.agentDurations.codex || 134);
-  document.getElementById('a4-dur-claude').innerText = formatDuration(state.agentDurations.claude || 92);
-  document.getElementById('a4-dur-agy').innerText = formatDuration(state.agentDurations.agy || 46);
-  document.getElementById('a4-dur-verify').innerText = '2.4s';
+  const decision = (report && report.decision) || state.currentDecision || 'idle';
+  const statusEl = document.getElementById('a4-status');
+  if (statusEl) {
+    statusEl.innerText = `DURUM: ${decision.toUpperCase()}`;
+    statusEl.className = `text-sm font-bold ${
+      decision === 'ready_for_approval' || decision === 'accepted' ? 'text-emerald-300' :
+      decision === 'max_turns' || decision === 'needs_verification' ? 'text-amber-300' :
+      'text-rose-300'
+    }`;
+  }
+
+  const runIdEl = document.getElementById('a4-runid');
+  if (runIdEl) runIdEl.innerText = (report && report.run_id) || runId || '-';
+
+  const branchEl = document.getElementById('a4-branch');
+  if (branchEl) branchEl.innerText = (report && report.metadata && report.metadata.branch) || state.activeBranch || '-';
+
+  const baseEl = document.getElementById('a4-base');
+  if (baseEl) {
+    baseEl.innerText = (report && report.metadata && report.metadata.base_head ? report.metadata.base_head.slice(0, 7) : '') || '-';
+  }
+
+  const footerStatusEl = document.getElementById('a4-footer-status');
+  if (footerStatusEl) footerStatusEl.innerText = decision;
+
+  const dateEl = document.getElementById('a4-date');
+  if (dateEl) {
+    const rawDate = report && (report.finished_at || report.started_at);
+    if (rawDate) {
+      const d = new Date(rawDate);
+      dateEl.innerText = !isNaN(d.getTime()) ? d.toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : rawDate;
+    } else {
+      dateEl.innerText = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+    }
+  }
+
+  const verifyBadgeEl = document.getElementById('a4-verify-badge');
+  if (verifyBadgeEl) {
+    const v = report && report.verification;
+    if (v) {
+      const vStatus = String(v.status || 'unknown').toUpperCase();
+      const vCmd = v.command ? ` (${v.command})` : '';
+      verifyBadgeEl.innerText = `Verification: ${vStatus}${vCmd}`;
+      verifyBadgeEl.className = `text-[11px] font-bold ${
+        v.status === 'passed' ? 'text-emerald-400' :
+        v.status === 'not_applicable' ? 'text-cyan-400' :
+        'text-rose-400'
+      }`;
+    } else {
+      verifyBadgeEl.innerText = 'Verification: NONE';
+      verifyBadgeEl.className = 'text-[11px] text-slate-400 font-bold';
+    }
+  }
+
+  const taskTextEl = document.getElementById('a4-task-desc');
+  if (taskTextEl) {
+    const t = (report && report.task) || (document.getElementById('task-text') ? document.getElementById('task-text').value : '');
+    taskTextEl.innerText = t || 'Görev belirtilmedi.';
+  }
+
+  // Agent execution results
+  const codexResEl = document.getElementById('a4-codex-res');
+  if (codexResEl) {
+    const c = report && report.agents && report.agents.codex;
+    if (c) {
+      codexResEl.innerText = c.enabled ? `Çalıştırıldı (${c.duration_sec || 0}s). ${report.warnings && report.warnings.length ? report.warnings.join(' ') : 'İşlem tamamlandı.'}` : 'Atlandı / Devre dışı';
+    } else {
+      codexResEl.innerText = state.agentStatus.codex === 'completed' ? 'Tamamlandı' : 'Atlandı';
+    }
+  }
+
+  const claudeResEl = document.getElementById('a4-claude-res');
+  if (claudeResEl) {
+    const cl = report && report.agents && report.agents.claude;
+    const rv = (report && report.review && report.review.verdict) || (cl && cl.verdict) || 'SKIPPED';
+    claudeResEl.innerText = cl && cl.enabled ? `VERDICT: ${rv}` : 'Atlandı (Devre dışı)';
+  }
+
+  const agyResEl = document.getElementById('a4-agy-res');
+  if (agyResEl) {
+    if (report && report.summary) {
+      agyResEl.innerText = report.summary;
+    } else {
+      const agy = report && report.agents && report.agents.agy;
+      agyResEl.innerText = agy && agy.enabled ? `Çalıştırıldı (${agy.duration_sec || 0}s)` : 'Atlandı';
+    }
+  }
+
+  // Changed files
+  const filesListEl = document.getElementById('a4-files-list');
+  if (filesListEl) {
+    const files = (report && report.changed_files) || (state.metrics && state.metrics.filesList) || [];
+    if (files.length === 0) {
+      filesListEl.innerHTML = `<div class="text-slate-400 italic">Değişen dosya yok (Yalnızca bilgi/sohbet sorgusu veya kod değişikliği yapılmadı).</div>`;
+    } else {
+      filesListEl.innerHTML = files.map(f => {
+        const p = typeof f === 'string' ? f : (f.path || f.file || '');
+        const s = (f.status || 'M').trim();
+        const color = s === 'A' || s === '??' ? 'text-cyan-400' : s === 'D' ? 'text-rose-400' : 'text-emerald-400';
+        return `<div class="${color}"><span class="w-6 inline-block font-bold">${s}</span> ${p}</div>`;
+      }).join('');
+    }
+  }
+
+  // Decision Rationale
+  const rationaleEl = document.getElementById('a4-rationale');
+  if (rationaleEl) {
+    if (report && report.why && report.why.length) {
+      rationaleEl.innerText = report.why.join(' • ');
+    } else if (report && report.summary) {
+      rationaleEl.innerText = report.summary;
+    } else {
+      rationaleEl.innerText = 'Tüm ajanlar adımlarını tamamladı.';
+    }
+  }
+
+  // Durations Breakdown
+  const dur = (report && report.duration) || {};
+  const durTotal = document.getElementById('a4-dur-total');
+  if (durTotal) durTotal.innerText = formatDuration(dur.total_sec || state.elapsedSeconds || 0);
+
+  const durCodex = document.getElementById('a4-dur-codex');
+  if (durCodex) durCodex.innerText = formatDuration(dur.codex_sec || state.agentDurations.codex || 0);
+
+  const durClaude = document.getElementById('a4-dur-claude');
+  if (durClaude) durClaude.innerText = formatDuration(dur.claude_sec || state.agentDurations.claude || 0);
+
+  const durAgy = document.getElementById('a4-dur-agy');
+  if (durAgy) durAgy.innerText = formatDuration(dur.agy_sec || state.agentDurations.agy || 0);
+
+  const durVerify = document.getElementById('a4-dur-verify');
+  if (durVerify) durVerify.innerText = `${dur.verification_sec || 0}s`;
 
   modal.classList.remove('hidden');
 }
@@ -1383,7 +1516,7 @@ async function loadHistory() {
         <td class="p-3 font-mono text-slate-400">${formatDuration(r.duration_seconds || 0)}</td>
         <td class="p-3 font-mono text-slate-400">${r.changed_files || 0} files</td>
         <td class="p-3 text-right">
-          <button onclick="openA4Modal()" class="text-cyan-400 hover:underline font-medium">Rapor</button>
+          <button onclick="openA4Modal('${r.run_id}')" class="text-cyan-400 hover:underline font-medium">Rapor</button>
         </td>
       </tr>
     `).join('');
