@@ -79,6 +79,19 @@ function toMsysPath(p) {
   return norm;
 }
 
+// Automatically detect application / git project root directory
+function getAutoProjectDir() {
+  const candidates = [process.cwd(), __dirname];
+  for (const dir of candidates) {
+    if (dir && typeof dir === 'string' && fs.existsSync(dir)) {
+      if (fs.existsSync(path.join(dir, '.git')) || fs.existsSync(path.join(dir, 'ai_bridge.sh'))) {
+        return path.resolve(dir);
+      }
+    }
+  }
+  return path.resolve(process.cwd() || __dirname);
+}
+
 // Config file management in userData
 function getConfigPath() {
   return path.join(app.getPath('userData'), 'ai_bridge_config.json');
@@ -86,9 +99,10 @@ function getConfigPath() {
 
 function loadConfig() {
   const cfgPath = getConfigPath();
+  const autoDir = getAutoProjectDir();
   const defaultCfg = {
-    recentProjects: ['F:\\AI-Bridge-Test'],
-    lastProject: 'F:\\AI-Bridge-Test',
+    recentProjects: [autoDir],
+    lastProject: autoDir,
     verifyCmd: 'pytest -q',
     maxTurns: 3,
     agents: { codex: true, claude: true, agy: true },
@@ -108,7 +122,14 @@ function loadConfig() {
   try {
     if (fs.existsSync(cfgPath)) {
       const data = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
-      return { ...defaultCfg, ...data };
+      const merged = { ...defaultCfg, ...data };
+      if (!merged.lastProject || !fs.existsSync(merged.lastProject)) {
+        merged.lastProject = autoDir;
+      }
+      if (!Array.isArray(merged.recentProjects) || merged.recentProjects.length === 0) {
+        merged.recentProjects = [autoDir];
+      }
+      return merged;
     }
   } catch (err) {
     console.error('Error reading config, using defaults:', err);
@@ -776,18 +797,19 @@ safeIpcHandle('storage:set', (event, newConfig) => {
 
 // Git status inspection IPC
 safeIpcHandle('git:branch-info', async (event, projectPath) => {
-  if (!projectPath || !fs.existsSync(projectPath)) {
-    return { exists: false, isRepo: false, branch: '', detached: false, sha: '', clean: true };
+  const targetPath = (projectPath && fs.existsSync(projectPath)) ? projectPath : getAutoProjectDir();
+  if (!targetPath || !fs.existsSync(targetPath)) {
+    return { exists: false, isRepo: false, branch: '', detached: false, sha: '', clean: true, path: targetPath };
   }
   const git = (args) => new Promise((resolve) => {
-    cp.execFile('git', args, { cwd: projectPath, windowsHide: true }, (err, stdout) => {
+    cp.execFile('git', args, { cwd: targetPath, windowsHide: true }, (err, stdout) => {
       resolve({ ok: !err, out: (stdout || '').trim() });
     });
   });
 
   const inside = await git(['rev-parse', '--is-inside-work-tree']);
   if (!inside.ok || inside.out !== 'true') {
-    return { exists: true, isRepo: false, branch: '', detached: false, sha: '', clean: true };
+    return { exists: true, isRepo: false, branch: '', detached: false, sha: '', clean: true, path: targetPath };
   }
 
   // symbolic-ref succeeds on a branch (even before the first commit) and fails on a detached HEAD.
@@ -797,7 +819,7 @@ safeIpcHandle('git:branch-info', async (event, projectPath) => {
   const status = await git(['status', '--porcelain']);
   const clean = status.ok ? status.out === '' : true;
 
-  return { exists: true, isRepo: true, branch: detached ? '' : sym.out, detached, sha, clean };
+  return { exists: true, isRepo: true, branch: detached ? '' : sym.out, detached, sha, clean, path: targetPath };
 });
 
 // Open log in external viewer IPC
@@ -1041,9 +1063,10 @@ safeIpcHandle('bridge:run', async (event, options) => {
     finalTask = finalTask + filesContext;
   }
 
+  const targetProject = (projectPath && fs.existsSync(projectPath)) ? projectPath : getAutoProjectDir();
   const bashPath = findBash();
   const scriptPath = toMsysPath(path.join(__dirname, 'ai_bridge.sh'));
-  const msysProject = toMsysPath(projectPath);
+  const msysProject = toMsysPath(targetProject);
 
   let tempTaskFile = null;
   const args = [
@@ -1102,7 +1125,7 @@ safeIpcHandle('bridge:run', async (event, options) => {
 
   try {
     const child = cp.spawn(bashPath, args, {
-      cwd: projectPath,
+      cwd: targetProject,
       windowsHide: true,
       env: {
         ...process.env,

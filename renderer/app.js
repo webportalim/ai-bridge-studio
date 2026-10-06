@@ -13,7 +13,7 @@ const state = {
   startTime: null,
   elapsedSeconds: 0,
   elapsedTimer: null,
-  projectPath: 'F:\\AI-Bridge-Test',
+  projectPath: '',
   activeBranch: 'master',
   isGitClean: true,
   git: { exists: true, isRepo: true, detached: false, sha: '' },
@@ -172,6 +172,11 @@ async function refreshGitBranch() {
   try {
     const info = await bridge.getBranchInfo(state.projectPath);
     if (info) {
+      if (info.path && !state.projectPath) {
+        state.projectPath = info.path;
+        const pInput = document.getElementById('project-input');
+        if (pInput) pInput.value = info.path;
+      }
       state.git = {
         exists: info.exists !== false,
         isRepo: info.isRepo !== false,
@@ -224,6 +229,7 @@ function updateBranchBadges() {
     let text = state.isGitClean ? 'Git: Clean' : 'Git: Dirty';
     if (g.kind === 'norepo' || g.kind === 'missing') { color = 'bg-rose-400'; text = 'Git: —'; }
     else if (g.kind === 'detached') { color = 'bg-amber-400'; text = 'Git: Detached'; }
+    else if (state.activeBranch) { text += ` (${state.activeBranch})`; }
     fGit.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${color}"></span> ${text}`;
   }
 }
@@ -648,7 +654,7 @@ async function initModelPickers(saved) {
 }
 
 async function startRealRun() {
-  const projectPath = document.getElementById('project-input').value.trim();
+  let projectPath = (document.getElementById('project-input') && document.getElementById('project-input').value.trim()) || state.projectPath;
   const task = document.getElementById('task-text').value.trim();
   const turns = parseInt(document.getElementById('turns-input').value, 10) || 3;
   const verifyCmd = document.getElementById('verify-input').value.trim();
@@ -659,10 +665,6 @@ async function startRealRun() {
   if (document.getElementById('chk-claude').checked) agents.push('claude');
   if (document.getElementById('chk-agy').checked) agents.push('agy');
 
-  if (!projectPath) {
-    showToast('error', 'Please enter or pick a project directory.');
-    return;
-  }
   if (!task) {
     showToast('error', 'Please describe the task.');
     return;
@@ -672,8 +674,14 @@ async function startRealRun() {
     return;
   }
 
-  // Check if project exists
+  // Check if project exists or auto-detect
   const info = await bridge.getBranchInfo(projectPath);
+  if (info && info.path && (!projectPath || !state.projectPath)) {
+    projectPath = info.path;
+    state.projectPath = info.path;
+    const pInput = document.getElementById('project-input');
+    if (pInput) pInput.value = info.path;
+  }
   if (info && info.exists === false) {
     showToast('error', 'The target project directory was not found on disk!');
     return;

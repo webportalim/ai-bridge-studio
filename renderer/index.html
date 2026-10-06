@@ -179,6 +179,9 @@
           <span id="top-status-text">Ready</span>
         </div>
 
+        <!-- Git Branch Badge -->
+        <span class="git-chip git-ok text-[11px]" id="branch-badge" title="Active git branch">branch: master</span>
+
         <!-- Demo Mode Toggle -->
         <div class="flex items-center gap-1.5 bg-[#0a1428] border border-[#1b2b48] px-2.5 py-1 rounded-lg">
           <span class="text-[10px] font-mono text-slate-400">Demo:</span>
@@ -221,25 +224,9 @@
       <!-- =================================================== -->
       <div class="col-span-12 lg:col-span-7 xl:col-span-8 flex flex-col gap-3.5">
 
-        <!-- 1. PROJECT CARD -->
-        <div class="bg-[#0a1324] border border-[#1b2b48] rounded-xl p-3.5 shadow-sm">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
-              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-              </svg>
-              <span>Project</span>
-            </label>
-            <span class="git-chip git-ok" id="branch-badge">branch: master</span>
-          </div>
-          <div class="flex gap-2">
-            <input type="text" id="project-input" value="F:\AI-Bridge-Test" onchange="onProjectChange()" class="flex-1 bg-[#060c18] border border-[#1e3256] rounded-lg px-3 py-2 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
-            <button onclick="browseFolder()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-1.5 shrink-0">
-              Browse...
-            </button>
-          </div>
-          <div id="git-warning" class="hidden"></div>
-        </div>
+        <!-- Auto-managed Project Directory & Git Warning -->
+        <input type="hidden" id="project-input" value="">
+        <div id="git-warning" class="hidden"></div>
 
         <!-- 2. TASK, AGENTS & RUN CONTROLS -->
         <div class="glass p-4 flex flex-col gap-4">
